@@ -6,3 +6,26 @@
     right: 0;
     position: absolute;
 }
+
+#iconImg{
+    max-width: 50px;
+}
+
+.table > tbody > tr > td {
+    vertical-align: middle;
+}
+
+.table > tbody > tr{
+    height: 70px;
+    position: relative;
+}
+
+.table td{
+    padding: 0 0.75rem;
+}
+
+.modal img{
+    left: 0.3rem;
+    bottom: 0;
+    position: absolute;
+}

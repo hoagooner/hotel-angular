@@ -1,12 +1,10 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Injector } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 const baseUrl = 'http://localhost:8080/api/facilities';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable()
 export class FacilityService {
 
   constructor(private http: HttpClient) { }
@@ -43,6 +41,6 @@ export class FacilityService {
   }
 
   findByName(name) {
-    return this.http.get(`${baseUrl}?name=${name}`);
+    return this.http.get(`${baseUrl}/search?name=${name}`);
   }
 }

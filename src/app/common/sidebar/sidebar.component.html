@@ -2,20 +2,22 @@
     <div class="sidebar-header">
         <h3>Hotel</h3>
     </div>
-    <ul class="list-unstyled components">
+    <ul class="list-unstyled components menu">
         <p>Dummy Heading</p>
         <li class="active">
             <a href="#homeSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
                 <i class="fa fa-th"></i> Hotel Configuration</a>
-            <ul class="collapse list-unstyled" id="homeSubmenu">
+            <ul class="collapse list-unstyled" id="homeSubmenu" >
                 <li>
-                    <a href="#" ><i class="fa fa-home"></i> Room Type</a>
+                    <a href="#" class="child-option"><i class="fa fa-home"></i> Room Type</a>
                 </li>
                 <li>
-                    <a href="#"><i class="fa fa-bed"></i> Room</a>
+                    <a [routerLink]="['/rooms']" class="child-option" routerLinkActive="selected" id="room"><i
+                            class="fa fa-bed"></i> Room</a>
                 </li>
                 <li>
-                    <a href="#" [routerLink]="['/facilities']"><i class="fa fa-wifi"></i> Facility</a>
+                    <a href="#" [routerLink]="['/facilities']" class="child-option " routerLinkActive="selected"><i
+                            class="fa fa-wifi"></i> Facility</a>
                 </li>
             </ul>
         </li>
@@ -27,13 +29,10 @@
                 <i class="fa fa-calendar"></i> Reservation</a>
             <ul class="collapse list-unstyled" id="pageSubmenu">
                 <li>
-                    <a href="#">Page 1</a>
+                    <a href="#" class="child-option" child-option>Page 1</a>
                 </li>
                 <li>
-                    <a href="#">Page 2</a>
-                </li>
-                <li>
-                    <a href="#">Page 3</a>
+                    <a href="#" class="child-option">Page 2</a>
                 </li>
             </ul>
         </li>

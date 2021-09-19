@@ -6,6 +6,10 @@ body {
     background: #fafafa;
 }
 
+app-sidebar{
+    background: #7386D5;
+}
+
 p {
     font-family: 'Poppins', sans-serif;
     font-size: 1.1em;
@@ -60,7 +64,7 @@ a:focus {
     background: #7386D5;
     color: #fff;
     transition: all 0.3s;
-    min-height: 1200px;
+    /* min-height: 1200px; */
 }
 
 #sidebar.active {

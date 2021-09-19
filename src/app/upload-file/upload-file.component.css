@@ -1,0 +1,10 @@
+#uploadBtn{
+    bottom: 0;
+    position: absolute;
+    left: -1rem;
+}
+
+#uploadBtn i{
+    padding: 0.2rem 0.9rem;
+}
+

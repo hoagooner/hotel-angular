@@ -1,0 +1,38 @@
+<div class="row">
+    <div class="col-md-10">
+        <label for="icon">Icon</label>
+        <input type="file" class="form-control" id="icon" (change)="selectFile($event)" >
+    </div>
+    <div class="col-md-2">
+        <button class="btn btn-info mt-2" id="uploadBtn" 
+            [disabled]="!selectedFiles" 
+            (click)="upload()"
+            [ngStyle]="{style: expression}">
+            <i class="fa fa-upload"></i>
+        </button>
+    </div>
+</div>
+
+<div class="row">
+  <div class="col-md-10">
+    <div *ngIf="currentFile" class="progress mt-1">
+      <div class="progress-bar progress-bar-info progress-bar-striped" role="progressbar"
+          attr.aria-valuenow="{{ progress }}" aria-valuemin="0" aria-valuemax="100" [ngStyle]="{ width: progress + '%' }">
+          {{ progress }}%
+      </div>
+  </div>
+  </div>
+</div>
+<!-- <div class="alert alert-light" role="alert">{{ message }}</div> -->
+
+<!-- <div class="card">
+    <div class="card-header">List of Files</div>
+    <ul
+      class="list-group list-group-flush"
+      *ngFor="let file of fileInfos | async"
+    >
+      <li class="list-group-item">
+        <a href="{{ file.url }}">{{ file.name }}</a>
+      </li>
+    </ul>
+  </div> -->

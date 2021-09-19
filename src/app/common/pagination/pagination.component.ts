@@ -42,6 +42,8 @@ export class PaginationComponent implements OnInit {
   // click page
   onChangePage($event) {
     let page = $event.path[0].innerText;
+    if(page == this.pageNumber)
+      return;
     switch (page) {
       case "First":
         if (this.pageNumber == 1) {

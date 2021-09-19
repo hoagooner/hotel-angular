@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+declare var $: any;
+
 
 @Component({
   selector: 'app-sidebar',
@@ -7,9 +9,15 @@ import { Component, OnInit } from '@angular/core';
 })
 export class SidebarComponent implements OnInit {
 
-  constructor() { }
+  isFirstLoad: boolean;
+
+  constructor() {
+  }
 
   ngOnInit() {
+    $(document).ready(function () {
+      $('.selected').closest("ul").collapse('show')
+    });
   }
 
 }

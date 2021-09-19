@@ -1,13 +1,20 @@
 <!-- Toast component -->
 <app-toast [class]="'bg-success'" [(status)]="toastStatus" [(message)]="toastMessage">
 </app-toast>
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a [routerLink]="['/']"><i class="fa fa-home"></i> Home</a></li>
+        <li class="breadcrumb-item active" aria-current="page"><a [routerLink]="['/facilities']">Facilities</a></li>
+    </ol>
+</nav>
+
 <div class="row mb-3">
     <div class="col-md-8">
         <div class="row">
             <div class="col-md-8">
                 <div class="input-group" id="adv-search">
-                    <input type="text" class="form-control" id="searchInp" placeholder="Enter facility ..."
-                       (keyup)="onChangeSearch($event)" />
+                    <input type="text" class="form-control" id="searchInp" placeholder="Enter facility name..."
+                        (keyup)="onChangeSearch($event)" />
                     <div class="input-group-btn">
                         <div class="btn-group" role="group">
                             <button type="button" class="btn btn-primary"><i class="fa fa-search"></i></button>
@@ -21,9 +28,9 @@
                     <div class="input-group-prepend">
                         <div class="input-group-text">Sort by</div>
                     </div>
-                    <select class="form-control" id="sortBy">
-                        <option>Last updated</option>
-                        <option>Name</option>
+                    <select class="form-control" id="sortBy" (change)="sortFacilities($event)">
+                        <option value="id">Last updated</option>
+                        <option value="name">Name</option>
                     </select>
                 </div>
             </div>
@@ -40,14 +47,19 @@
     <thead>
         <tr style="background-color: #7386D5;" class="text-light">
             <th scope="col" style="width: 10%;">No</th>
+            <th scope="col" style="width: 15%;">Icon</th>
             <th scope="col" style="width: 20%;">Name</th>
-            <th scope="col" style="width: 50%;">Description</th>
-            <th scope="col" style="width: 20%;">Action</th>
+            <th scope="col" style="width: 40%;">Description</th>
+            <th scope="col" style="width: 15%;">Action</th>
         </tr>
     </thead>
     <tbody>
         <tr *ngFor="let facility of facilities; index as i">
-            <th scope="row">{{facility.id}}</th>
+            <td scope="row">{{facility.id}}</td>
+            <td scope="row">
+                <img src="http://localhost:8080/upload/{{facility.icon ? facility.icon : 'facilities.png'}}" alt=""
+                    id="iconImg">
+            </td>
             <td>{{facility.name}}</td>
             <td>{{facility.description}}</td>
             <td>
@@ -62,6 +74,10 @@
         </tr>
     </tbody>
 </table>
+<div class="alert alert-info" *ngIf="facilities && facilities.length == 0">
+    <i class="fa fa-exclamation-circle mr-2"></i>
+    {{pagingArgs.query != "" ? 'Hmmm. We \'re not getting any results. Try another search' : 'This list is empty'}}
+</div>
 
 <!--  facility modal -->
 <div class="modal fade facilityFormModal" tabindex="-1" id="facilityModal" aria-labelledby="exampleModalLabel"
@@ -83,6 +99,7 @@
                                 <label for="name">Name</label>
                                 <input type="text" formControlName="name" class="form-control" [ngClass]="{'is-invalid': !name.valid && name.touched,
                                                 'is-valid':name.valid && name.touched}" id="name" placeholder="Name"
+                                    (keyup)="checkNameExists($event)"
                                     autofocus>
                                 <div class="invalid-feedback" *ngIf="name.touched && name.invalid">
                                     <div *ngIf="name.errors.required">
@@ -92,19 +109,43 @@
                                         Facility name should be maximum {{name.errors.maxlength.requiredLength}}
                                         character
                                     </div>
+                                    <div *ngIf="name.errors.shouldBeUnique">
+                                        This name already exists
+                                    </div>
                                 </div>
                             </div>
+
                             <!-- error name input -->
                             <div class="form-group col-md-6">
-                                <label for="icon">Icon</label>
-                                <input type="file" class="form-control" id="icon">
+                                <div class="row">
+                                    <div class="col-md-{{icon.value ? '10' : '12'}}">
+                                        <app-upload-file (onFileSelected)="fileName = $event">
+                                        </app-upload-file>
+                                        <input type="hidden" formControlName="icon">
+                                    </div>
+                                    <div class="col-md-2" *ngIf="icon.value && !fileName">
+                                        <img src="http://localhost:8080/upload/{{icon.value}}" class="mt-4" alt=""
+                                            id="iconImg">
+                                    </div>
+                                </div>
                             </div>
                         </div>
+
                         <div class="form-row">
                             <div class="form-group col-md-12">
                                 <label for="description">Description</label>
-                                <textarea class="form-control" formControlName="description"
+                                <textarea class="form-control" formControlName="description" [ngClass]="{'is-invalid': !description.valid && description.touched,
+                                                'is-valid':description.valid && description.touched}"
                                     id="description"></textarea>
+                                <div class="invalid-feedback" *ngIf="description.touched && description.invalid">
+                                    <div *ngIf="description.errors.required">
+                                        Description is required
+                                    </div>
+                                    <div *ngIf="description.errors.maxlength">
+                                        Description should be maximum {{description.errors.maxlength.requiredLength}}
+                                        character
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -121,6 +162,7 @@
 <app-pagination *ngIf="totalPages > 0" (action)="loadFacilitites($event)" [(totalPages)]="totalPages"
     [(totalElements)]="totalElements">
 </app-pagination>
+
 <!-- modal component -->
 <app-modal-confirm [(body)]="modalBody" [(submit)]="submit" [(title)]="modalTitle"
     [(deletedFacility)]="selectedFacility" (actionEvent)="deleteError ? loadFacilitites() : deleteFacility($event)">
