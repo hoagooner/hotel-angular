@@ -1,0 +1,41 @@
+select{
+    width: 80px;
+}
+.showing p{
+ margin-top: 0.2rem;
+}
+
+.showing select{
+    margin-left: -1rem;
+}
+
+.pagination p{
+    color: gray;
+}
+
+/* .paging{
+    position: absolute !important;
+    right: 1rem  !important;
+} */
+/* .showing{
+    font-size: 13px;
+    margin-top: 8px;
+    position: absolute;
+    color: black;
+    left: -1rem;
+}
+
+ .specific-page input{
+    width: 50px;
+    right: 1rem;
+    position: absolute;
+} */
+/*
+.specific-page p{
+    font-size: 13px;
+    margin-top: 8px;
+    position: absolute;
+    color: black;
+    right: 4.5rem;
+}
+ */

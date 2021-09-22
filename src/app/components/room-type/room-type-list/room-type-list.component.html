@@ -1,0 +1,56 @@
+<!-- Toast component -->
+<app-toast [class]="'bg-success'" [(status)]="toastStatus" [(message)]="toastMessage">
+</app-toast>
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a [routerLink]="['/']"><i class="fa fa-home"></i> Home</a></li>
+        <li class="breadcrumb-item active" aria-current="page"><a [routerLink]="['/room-types']">Room types</a></li>
+    </ol>
+</nav>
+
+<div class="row mb-3">
+    <div class="col-md-8">
+    </div>
+    <div class="col-md-4">
+        <button class="btn btn-primary float-right" id="addBtn" [routerLink]="['/room-types/create']" >
+            <i class="fa fa-plus"></i> Add room type
+        </button>
+    </div>
+</div>
+<table datatable [dtOptions]="dtOptions"  [dtTrigger]="dtTrigger" class="table table-striped mt-3" id="roomTypeTable">
+    <thead>
+        <tr style="background-color: #7386D5;" class="text-light">
+            <th scope="col" style="width: 10%;">No.</th>
+            <th scope="col" style="width: 15%;">Name</th>
+            <th scope="col" style="width: 10%;">Size (<sup>2</sup>)</th>
+            <th scope="col" style="width: 17%;">Number of adults</th>
+            <th scope="col" style="width: 18%;">Number of childs</th>
+            <th scope="col" style="width: 15%;">Price (VND)</th>
+            <th scope="col" style="width: 15%;">Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let roomType of roomTypes;index as i">
+            <td>{{i+1}}</td>
+            <td>{{roomType.name}}</td>
+            <td class="text-right pr-3">{{roomType.size}}</td>
+            <td class="text-right pr-4">{{roomType.numberOfAdults}}</td>
+            <td class="text-right pr-4">{{roomType.numberOfChilds}}</td>
+            <td class="text-right pr-4">{{roomType.prices.length > 0 ? roomType.prices[0].price : 0}}</td>
+            <td>
+                <button class="btn btn-outline-primary" [routerLink]="['/room-types',roomType.id]">
+                    <i class="fa fa-edit"></i>
+                </button>&nbsp;
+                <button class="btn btn-outline-danger" data-toggle="modal" data-target="#confirmModal"
+                    (click)="clickDelete(roomType); row = $event">
+                    <i class="fa fa-trash"></i>
+                </button>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+<!-- modal component -->
+<app-modal-confirm [(body)]="modalBody" [(submit)]="submit" [(title)]="modalTitle" [(deletedItem)]="selectedRoomType"
+    (actionEvent)="deleteError ? loadRoomTypes(): deleteRoomType($event)">
+</app-modal-confirm>

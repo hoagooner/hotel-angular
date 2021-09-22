@@ -1,0 +1,230 @@
+<!-- Toast component -->
+<app-toast [class]="'bg-success'" [(status)]="toastStatus" [(message)]="toastMessage">
+</app-toast>
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item">
+      <a [routerLink]="['/']"><i class="fa fa-home"></i> Home</a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">
+      <a [routerLink]="['/facilities']">Facilities</a>
+    </li>
+  </ol>
+</nav>
+
+<div class="row mb-3">
+  <div class="col-md-6">
+    <div class="row">
+      <div class="col-md-8">
+        <div class="input-group" id="adv-search">
+          <input
+            type="search"
+            class="form-control"
+            id="searchInp"
+            placeholder="Enter facility name..."
+            (keyup)="onChangeSearch($event.target.value)"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <button
+      class="btn btn-primary"
+      id="addBtn"
+      data-toggle="modal"
+      data-target=".facilityFormModal"
+      (click)="clickAdd()"
+    >
+      <i class="fa fa-plus"></i> Add facility
+    </button>
+  </div>
+</div>
+<table class="table table-striped" id="facilityTable">
+    <thead>
+      <tr style="background-color: #7386d5" class="text-light">
+        <th scope="col" style="width: 10%"><span>No.</span><i class="fa fa-sort float-right mt-1" (click)="sortFacilities('id')"></i>
+        </th>
+        <th scope="col" style="width: 15%"><span>Icon</span></th>
+        <th scope="col" style="width: 20%"><span>Name</span><i class="fa fa-sort float-right mt-1" (click)="sortFacilities('name')"></i></th>
+        <th scope="col" style="width: 40%"><span>Description</span></th>
+        <th scope="col" style="width: 15%"><span>Action</span></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let facility of facilities; index as i">
+        <td scope="row">{{facility.id}}</td>
+        <td scope="row">
+          <img
+            src="http://localhost:8080/upload/{{
+              facility.icon ? facility.icon : 'facilities.png'
+            }}"
+            alt=""
+            id="iconImg"
+          />
+        </td>
+        <td>{{ facility.name }}</td>
+        <td >
+            <span>{{ facility.description }}</span>
+        </td>
+        <td>
+          <button class="btn btn-outline-primary" (click)="clickEdit(facility)">
+            <i class="fa fa-pencil"></i></button
+          >&nbsp;
+          <button
+            class="btn btn-outline-danger"
+            data-toggle="modal"
+            data-target="#confirmModal"
+            (click)="clickDelete(facility)"
+          >
+            <i class="fa fa-trash"></i>
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+<div class="alert alert-info" *ngIf="facilities && facilities.length == 0">
+  <i class="fa fa-exclamation-circle mr-2"></i>
+  {{
+    pagingArgs.query != ""
+      ? "Hmmm. We 're not getting any results. Try another search"
+      : "This list is empty"
+  }}
+</div>
+
+<!--  facility modal -->
+<div
+  class="modal fade facilityFormModal"
+  tabindex="-1"
+  id="facilityModal"
+  aria-labelledby="exampleModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">
+          {{ action }} facility
+        </h5>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Close"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <!-- body -->
+      <form [formGroup]="form">
+        <div class="modal-body">
+          <div formGroupName="facility">
+            <div class="form-row">
+              <div class="form-group col-md-6">
+                <label for="name">Name</label>
+                <input
+                  type="text"
+                  formControlName="name"
+                  class="form-control"
+                  [ngClass]="{
+                    'is-invalid': !name.valid && name.touched,
+                    'is-valid': name.valid && name.touched
+                  }"
+                  id="name"
+                  placeholder="Name"
+                  (keyup)="checkNameExists($event)"
+                  autofocus
+                />
+                <div
+                  class="invalid-feedback"
+                  *ngIf="name.touched && name.invalid"
+                >
+                  <div *ngIf="name.errors">
+                    {{validationMessage.getErrorMessage("Facility name",name.errors)}}
+                  </div>
+                </div>
+              </div>
+
+              <!-- error name input -->
+              <div class="form-group col-md-6">
+                <div class="row">
+                  <div class="col-md-{{ icon.value ? '10' : '12' }}">
+                    <app-upload-file (onFileSelected)="fileName = $event">
+                    </app-upload-file>
+                    <input type="hidden" formControlName="icon" />
+                  </div>
+                  <div class="col-md-2" *ngIf="icon.value && !fileName">
+                    <img
+                      src="http://localhost:8080/upload/{{ icon.value }}"
+                      class="mt-4"
+                      alt=""
+                      id="iconImg"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group col-md-12">
+                <label for="description">Description</label>
+                <textarea
+                rows="3"
+                  class="form-control"
+                  formControlName="description"
+                  [ngClass]="{
+                    'is-invalid': !description.valid && description.touched,
+                    'is-valid': description.valid && description.touched
+                  }"
+                  id="description"
+                ></textarea>
+                <div
+                  class="invalid-feedback"
+                  *ngIf="description.touched && description.invalid"
+                >
+                  <div *ngIf="description.errors">
+                    {{validationMessage.getErrorMessage("Facility name",description.errors)}}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">
+            Cancel
+          </button>
+          <button
+            type="button"
+            class="btn btn-primary"
+            [disabled]="form.invalid"
+            (click)="action == 'Add' ? createFacility() : updateFacility()"
+          >
+            Save
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<app-pagination
+  *ngIf="totalPages > 0"
+  (action)="loadFacilitites($event)"
+  [(query)]="pagingArgs.query"
+  [(sortBy)]="pagingArgs.sortBy"
+  [(sortDirection)]="pagingArgs.sortDirection"
+  [(totalPages)]="totalPages"
+  [(totalElements)]="totalElements"
+>
+</app-pagination>
+
+<!-- modal component -->
+<app-modal-confirm
+  [(body)]="modalBody"
+  [(submit)]="submit"
+  [(title)]="modalTitle"
+  [(deletedItem)]="selectedFacility"
+  (actionEvent)="deleteError ? loadFacilitites() : deleteFacility($event)"
+>
+</app-modal-confirm>

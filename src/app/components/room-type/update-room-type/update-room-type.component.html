@@ -1,0 +1,303 @@
+<!-- Toast component -->
+<app-toast [class]="'bg-success'" [(status)]="toastStatus" [(message)]="toastMessage">
+</app-toast>
+<!-- Toast component -->
+<app-toast
+    [class]="'bg-success'"
+    [(status)]="toastStatus"
+    [(message)]="toastMessage"
+>
+</app-toast>
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+            <a [routerLink]="['/']"><i class="fa fa-home"></i> Home</a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">
+            <a [routerLink]="['/room-types']">Room type</a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">
+            <a [routerLink]="['/room-types/update']">update</a>
+        </li>
+    </ol>
+</nav>
+
+<nav>
+    <div class="nav nav-tabs" id="nav-tab" role="tablist">
+        <a
+            class="nav-item nav-link active"
+            id="nav-home-tab"
+            data-toggle="tab"
+            href="#nav-roomt-type"
+            role="tab"
+            aria-controls="nav-home"
+            aria-selected="true"
+            >Room type</a
+        >
+        <a
+            class="nav-item nav-link"
+            id="nav-profile-tab"
+            data-toggle="tab"
+            href="#nav-profile"
+            role="tab"
+            aria-controls="nav-profile"
+            aria-selected="false"
+            >Facilities</a
+        >
+    </div>
+</nav>
+<div class="tab-content" id="nav-tabContent">
+    <div
+        class="tab-pane fade show active pl-1"
+        id="nav-roomt-type"
+        role="tabpanel"
+        aria-labelledby="nav-home-tab"
+    >
+        <form [formGroup]="form" class="mt-3">
+            <div formGroupName="roomType">
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label for="name">Name</label>
+                        <input
+                            type="text"
+                            formControlName="name"
+                            class="form-control"
+                            [ngClass]="{
+                                'is-invalid': !name.valid && name.touched,
+                                'is-valid': name.valid && name.touched
+                            }"
+                            id="name"
+                            placeholder="Name"
+
+                        />
+                        <!-- show validate error -->
+                        <div
+                            class="invalid-feedback"
+                            *ngIf="name.touched && name.invalid"
+                        >
+                            <div *ngIf="name.errors.required">
+                                Facility name is required
+                            </div>
+                            <div *ngIf="name.errors.maxlength">
+                                Facility name should be maximum
+                                {{ name.errors.maxlength.requiredLength }}
+                                character
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="price">Price</label>
+                        <input
+                            type="number"
+                            formControlName="price"
+                            class="form-control"
+                            [ngClass]="{
+                                'is-invalid': !price.valid && price.touched,
+                                'is-valid': price.valid && price.touched
+                            }"
+                            id="price"
+                            placeholder="Price"
+
+                        />
+                        <!-- show validate error -->
+                        <div
+                            class="invalid-feedback"
+                            *ngIf="price.touched && price.invalid"
+                        >
+                            <div *ngIf="name.errors.required">
+                                Price is required
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label for="name">Size</label>
+                        <input
+                            type="number"
+                            formControlName="size"
+                            class="form-control"
+                            [ngClass]="{
+                                'is-invalid': !size.valid && size.touched,
+                                'is-valid': size.valid && size.touched
+                            }"
+                            id="size"
+                            placeholder="Name"
+                        />
+                        <div
+                            class="invalid-feedback"
+                            *ngIf="size.touched && size.invalid"
+                        >
+                            <div *ngIf="name.errors.required">
+                                Size is required
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="numberOfBeds">Number of beds</label>
+                        <input
+                            type="number"
+                            formControlName="numberOfBeds"
+                            class="form-control"
+                            [ngClass]="{
+                                'is-invalid':
+                                    !numberOfBeds.valid && numberOfBeds.touched,
+                                'is-valid': numberOfBeds.valid && numberOfBeds.touched
+                            }"
+                            id="numberOfBeds"
+                            placeholder="Number of beds"
+                        />
+                        <div
+                            class="invalid-feedback"
+                            *ngIf="numberOfBeds.touched && numberOfBeds.invalid"
+                        >
+                            <div *ngIf="numberOfBeds.errors.required">
+                                Number of beds is required
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label for="numberOfAdults">Number of adults</label>
+                        <input
+                            type="number"
+                            formControlName="numberOfAdults"
+                            class="form-control"
+                            [ngClass]="{
+                                'is-invalid':
+                                    !numberOfAdults.valid &&
+                                    numberOfAdults.touched,
+                                'is-valid':
+                                    numberOfAdults.valid &&
+                                    numberOfAdults.touched
+                            }"
+                            id="numberOfAdults"
+                            placeholder="Number of adults"
+                        />
+                        <div
+                            class="invalid-feedback"
+                            *ngIf="
+                                numberOfAdults.touched && numberOfAdults.invalid
+                            "
+                        >
+                            <div *ngIf="numberOfAdults.errors.required">
+                                Number of adults is required
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="numberOfChilds">Number of childs</label>
+                        <input
+                            type="number"
+                            formControlName="numberOfChilds"
+                            class="form-control"
+                            [ngClass]="{
+                                'is-invalid':
+                                    !numberOfChilds.valid &&
+                                    numberOfChilds.touched,
+                                'is-valid':
+                                    numberOfChilds.valid &&
+                                    numberOfChilds.touched
+                            }"
+                            id="numberOfChilds"
+                            placeholder="Number of childs"
+                        />
+                        <div
+                            class="invalid-feedback"
+                            *ngIf="
+                                numberOfChilds.touched && numberOfChilds.invalid
+                            "
+                        >
+                            <div *ngIf="numberOfChilds.errors.required">
+                                Number of childs is required
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group col-md-12">
+                        <label for="description">Description</label>
+                        <textarea
+                            class="form-control"
+                            formControlName="description"
+                            [ngClass]="{
+                                'is-invalid':
+                                    !description.valid && description.touched,
+                                'is-valid':
+                                    description.valid && description.touched
+                            }"
+                            id="description"
+                        ></textarea>
+                        <div
+                            class="invalid-feedback"
+                            *ngIf="description.touched && description.invalid"
+                        >
+                            <div *ngIf="description.errors.maxlength">
+                                Description should be maximum
+                                {{
+                                    description.errors.maxlength.requiredLength
+                                }}
+                                character
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <button
+                        type="button"
+                        class="btn btn-primary float-right"
+                        [disabled]="form.invalid"
+                        (click)="updateRoomType()"
+                    >
+                        Update
+                    </button>
+                    <button
+                        type="button"
+                        class="btn btn-secondary mr-2 float-right"
+                        (click)="redirectRoomTypeList()"
+                    >
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div
+        class="tab-pane fade"
+        id="nav-profile"
+        role="tabpanel"
+        aria-labelledby="nav-profile-tab"
+    >
+        <div class="row mt-5 pl-5 scroll facilities">
+            <div class="col-md-6 facility" *ngFor="let item of facilities;index as i">
+                <div class="row border-bottom">
+                    <div class="col-md-2">
+                        <input type="checkbox" [value]="item.id" [checked]="checkFacility(item)"/>
+                    </div>
+                    <div class="col-md-3">
+                        <img
+                            src="{{ url }}/upload/{{
+                                item.icon ? item.icon : 'facilities.png'
+                            }}"
+                            alt=""
+                            class="w-100"
+                        />
+                    </div>
+                    <div class="col-md-7 name">
+                        {{ item.name }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button
+            class="btn btn-primary float-right m-4"
+            (click)="createSelectedFacilities()"
+        >
+            Save
+        </button>
+    </div>
+</div>

@@ -3,21 +3,30 @@ import { NgModule } from '@angular/core';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { NavbarComponent } from './common/navbar/navbar.component';
-import { SidebarComponent } from './common/sidebar/sidebar.component';
-import { FacilityListComponent } from './facility/facility-list/facility-list.component';
+import { NavbarComponent } from './components/common/navbar/navbar.component';
+import { SidebarComponent } from './components/common/sidebar/sidebar.component';
+import { FacilityListComponent } from './components/facility/facility.component';
 import { RouterModule } from '@angular/router';
 import { FacilityService } from './services/facility.service';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { ModalConfirmComponent } from './common/modal-confirm/modal-confirm.component';
-import { ToastComponent } from './common/toast/toast.component';
-import { PaginationComponent } from './common/pagination/pagination.component';
-import { RoomComponent } from './room/room.component';
-import { UploadFileComponent } from './upload-file/upload-file.component';
+import { ModalConfirmComponent } from './components/common/modal-confirm/modal-confirm.component';
+import { ToastComponent } from './components/common/toast/toast.component';
+import { PaginationComponent } from './components/common/pagination/pagination.component';
+import { RoomComponent } from './components/room/room.component';
+import { UploadFileComponent } from './components/upload-file/upload-file.component';
 import { UploadFileService } from './services/upload-file.service';
-import { FacilityValidators } from './facility/facility-list/facility.validators';
-import { FooterComponent } from './common/footer/footer.component';
+import { FacilityValidators } from './components/facility/facility.validators';
+import { FooterComponent } from './components/common/footer/footer.component';
+import { RoomTypeListComponent } from './components/room-type/room-type-list/room-type-list.component';
+import { RoomTypeService } from './services/room-type.service';
+import { DataTablesModule } from 'angular-datatables';
+import { CreateRoomTypeComponent } from './components/room-type/create-room-type/create-room-type.component';
+import { UpdateRoomTypeComponent } from './components/room-type/update-room-type/update-room-type.component';
+import { ValidationMessage } from './utils/ValidationMessage';
+import { NotFoundComponent } from './components/not-found/not-found.component';
+import { HomeComponent } from './components/home/home.component';
+
 
 @NgModule({
   declarations: [
@@ -30,7 +39,12 @@ import { FooterComponent } from './common/footer/footer.component';
     PaginationComponent,
     RoomComponent,
     UploadFileComponent,
-    FooterComponent
+    FooterComponent,
+    RoomTypeListComponent,
+    CreateRoomTypeComponent,
+    UpdateRoomTypeComponent,
+    NotFoundComponent,
+    HomeComponent,
   ],
   imports: [
     BrowserModule,
@@ -38,15 +52,14 @@ import { FooterComponent } from './common/footer/footer.component';
     ReactiveFormsModule,
     FormsModule,
     HttpClientModule,
-    RouterModule.forRoot([
-      { path: 'facilities', component: FacilityListComponent },
-      { path: 'rooms', component: RoomComponent }
-    ])
+    DataTablesModule
   ],
   providers: [
     FacilityService,
     UploadFileService,
-    FacilityValidators
+    FacilityValidators,
+    RoomTypeService,
+    ValidationMessage
   ],
   bootstrap: [AppComponent]
 })

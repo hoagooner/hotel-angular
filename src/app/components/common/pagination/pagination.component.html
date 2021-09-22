@@ -1,0 +1,73 @@
+<div class="row pagination">
+    <div class="col-md-3">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="form-group row showing">
+                    <p class="col-sm-2 col-form-label ">Show</p>
+                    <div class="col-sm-10">
+                        <select name="" id="" [(ngModel)]="pageSize" class="form-control"  (change)="changePageSize()">
+                            <option value="5" selected>5</option>
+                            <option value="10">10</option>
+                            <option value="15">15</option>
+                        </select>
+                    </div>
+                  </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-9">
+        <div class="form-group row float-right mr-1">
+            <p class="mr-1 mt-2">
+                Showing {{((pageNumber-1)*pageSize)*1+1}} to {{pageNumber*pageSize > totalElements ? totalElements :
+                pageNumber*pageSize }} of {{totalElements}} items
+            </p>
+            <input type="number" class="form-control mr-1" value="1" min="1" max="{{totalPages}}"
+                (keyup.enter)="goToPage()" [(ngModel)]="specificPage" style="width: 50px;">
+            <nav aria-label="Page navigation example" >
+                <ul class="pagination" (click)="onChangePage($event)">
+                    <!-- First Page -->
+                    <li class="page-item" [class.disabled]="pageNumber == 1">
+                        <a class="page-link">First</a>
+                    </li>
+
+                    <!-- Previous Page -->
+                    <li class="page-item " [class.disabled]="pageNumber == 1">
+                        <a class="page-link" aria-disabled="true">Prev</a>
+                    </li>
+
+                    <li class="page-item" [ngClass]="{active:pageNumber == 1}">
+                        <a class="page-link">1</a>
+                    </li>
+
+                    <!-- .... -->
+                    <li class="page-item" *ngIf="pageNumber - delta > 2">
+                        <a class="page-link ">...</a>
+                    </li>
+
+                    <li class="page-item" *ngFor="let index of arr" [ngClass]="{active: index == pageNumber}">
+                        <a class="page-link">{{index}}</a>
+                    </li>
+
+                    <li class="page-item" *ngIf="totalPages - 1 > pageNumber*1 + delta*1">
+                        <a class="page-link ">...</a>
+                    </li>
+
+                    <li class="page-item" *ngIf="totalPages != 1" [ngClass]="{active: totalPages == pageNumber}">
+                        <a class="page-link">{{totalPages}}</a>
+                    </li>
+
+                    <!-- Next Page-->
+                    <li class="page-item" [class.disabled]="pageNumber == totalPages">
+                        <a class="page-link">Next</a>
+                    </li>
+
+                    <!-- Last Page -->
+                    <li class="page-item" [class.disabled]="pageNumber == totalPages">
+                        <a class="page-link">Last
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+          </div>
+    </div>
+</div>
