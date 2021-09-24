@@ -1,7 +1,7 @@
 import { Injectable, Injector, ReflectiveInjector } from "@angular/core";
 import { AbstractControl, AsyncValidatorFn, ValidationErrors } from "@angular/forms";
 import { Observable } from "rxjs";
-import { FacilityService } from "src/app/services/facility.service";
+import { FacilityService } from "src/app/services/facility/facility.service";
 import { resolve } from "url";
 import { map } from "rxjs/operators";
 import { Facility } from "src/app/models/Facility";

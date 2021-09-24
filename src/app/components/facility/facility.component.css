@@ -15,9 +15,10 @@
     vertical-align: middle;
 }
 
-i:hover{
-    cursor: pointer;
-}
+.tooltip{
+    text-align:left !important;
+  }
+
 
 .table > tbody > tr{
     height: 60px;
@@ -40,3 +41,9 @@ table {
     bottom: 0;
     position: absolute;
 }
+:ng-deep .tooltip-inner {
+    max-width: 740px;
+    text-align: left;
+    border-radius: 10px;
+    box-shadow: 0 0 3px #00000040;
+  }

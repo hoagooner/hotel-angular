@@ -10,7 +10,10 @@ import { DataTableDirective } from "angular-datatables";
 import { param } from "jquery";
 import { Subject } from "rxjs";
 import { RoomType } from "src/app/models/RoomType";
-import { RoomTypeService } from "src/app/services/room-type.service";
+import { RoomTypeService } from "src/app/services/room-type/room-type.service";
+import { CalculateTableIndex } from "src/app/utils/CalculateTableIndex";
+import { CommomUtils } from "src/app/utils/CommonUtils";
+import { PagingArgs } from "../../common/pagination/pagination.component";
 declare var $: any;
 
 @Component({
@@ -19,8 +22,6 @@ declare var $: any;
     styleUrls: ["./room-type-list.component.css"],
 })
 export class RoomTypeListComponent implements OnInit {
-    @ViewChild(DataTableDirective, { static: false })
-    dtElement: DataTableDirective;
 
     roomTypes: RoomType[];
     selectedRoomType: any;
@@ -30,34 +31,29 @@ export class RoomTypeListComponent implements OnInit {
     deleteError: boolean;
     toastStatus: string;
     toastMessage: string;
-    dtOptions: DataTables.Settings = {};
-    dtTrigger: Subject<any> = new Subject<any>();
-    row: any;
+    totalPages: number;
+    totalElements: number;
+    query: string;
+    pageSize: number;
+    // default paging, search, sort
+    pagingArgs: PagingArgs = {
+        query: "",
+        pageNumber: 1,
+        pageSize: 5,
+        sortBy:"id",
+        sortDirection:"desc"
+    };
 
     constructor(
         private roomTypeService: RoomTypeService,
-        private activatedRoute: ActivatedRoute
+        private activatedRoute: ActivatedRoute,
+        public calculateTableIndex: CalculateTableIndex
     ) {}
 
     ngOnInit() {
-        this.dtOptions = {
-            pagingType: "full_numbers",
-            lengthMenu: [
-                [5, 10, 15],
-                [5, 10, 15],
-            ],
-        };
-
-        this.roomTypeService.getAll().subscribe(
-            (response) => {
-                this.roomTypes = response;
-                this.dtTrigger.next();
-            },
-            (error) => {
-                console.log(error);
-            }
-        );
-
+        this.loadRoomTypes(this.pagingArgs)
+        CommomUtils.tabLoop()
+        CommomUtils.focusFirstInput()
         this.activatedRoute.queryParams.subscribe((params) => {
             console.log(params);
             if (params.create == "success") {
@@ -74,26 +70,55 @@ export class RoomTypeListComponent implements OnInit {
         });
     }
 
-    loadRoomTypes() {
-        this.roomTypeService.getAll().subscribe(
+    loadRoomTypes(eventArgs?) {
+        this.pagingArgs = eventArgs;
+        this.roomTypeService.getAll(this.pagingArgs).subscribe(
             (response) => {
-                this.roomTypes = response;
+                if (response) {
+                    this.roomTypes = response.content;
+                    this.totalElements = response.totalElements;
+                    this.totalPages = response.totalPages;
+                } else {
+                    this.roomTypes = [];
+                    this.totalElements = 0;
+                    this.totalPages = 0;
+                }
             },
-            (error) => {
+            (error: Response) => {
                 console.log(error);
             }
         );
-        this.rerender();
         this.closeConfirmModal();
     }
 
-    //re render data table
-    rerender(): void {
-        this.dtElement.dtInstance.then((dtInstance: DataTables.Api) => {
-            dtInstance.destroy();
-            this.dtTrigger.next();
-        });
+    clickView(id){
+         // check facility exists or not
+         this.roomTypeService.get(id).subscribe(
+            (response) => {
+                $("#detailModal").modal("show");
+                this.selectedRoomType = response;
+            },
+            (error) => {
+                $("#facilityModal").modal("hide");
+                $("#confirmModal").modal("show");
+                this.editModalAfterDeleteError("update");
+            }
+        );
     }
+
+     //sort facilities
+     sortRoomTypes(prop){
+        if(this.pagingArgs.sortBy == prop){
+            if(this.pagingArgs.sortDirection == "desc"){
+                this.pagingArgs.sortDirection = "asc"
+            }else{
+                this.pagingArgs.sortDirection = "desc"
+            }
+        }
+        this.pagingArgs.sortBy = prop;
+        this.loadRoomTypes(this.pagingArgs)
+    }
+
 
     clickDelete(roomType) {
         this.selectedRoomType = roomType;
@@ -108,9 +133,7 @@ export class RoomTypeListComponent implements OnInit {
         // $('#roomTypeTable').DataTable().destroy()
         this.roomTypeService.delete(roomType.id).subscribe(
             (response) => {
-                let index = this.roomTypes.indexOf(roomType);
-                // delete row
-                $("#roomTypeTable").dataTable().fnDeleteRow(this.row.path[2]);
+                this.loadRoomTypes(this.pagingArgs); // load room types
                 this.editToastAfterActionSuccess(
                     "Success",
                     "Room type deleted successfylly !"
@@ -121,6 +144,16 @@ export class RoomTypeListComponent implements OnInit {
                 console.log(error);
             }
         );
+    }
+
+    // search facilities
+    onChangeSearch(query) {
+        console.log("event");
+        this.query = query;
+        // refer first page after search
+        this.pagingArgs.pageNumber = 1;
+        this.pagingArgs.query = this.query;
+        this.loadRoomTypes(this.pagingArgs);
     }
 
     // edit toast after action success
@@ -138,6 +171,8 @@ export class RoomTypeListComponent implements OnInit {
         this.modalTitle = "Oops!";
         this.modalBody = `Can't ${action} this item. It might have been deleted. Please refresh your page !`;
     }
+
+
 
     //close confirm modal
     closeConfirmModal() {

@@ -11,7 +11,15 @@ export class RoomTypeService {
   constructor(private http: HttpClient) { }
 
    getAll(data?): Observable<any> {
-    return this.http.get(`${environment.SERVER_URL}/api/room-types`);
+    return this.http.get(`${environment.SERVER_URL}/api/room-types`,{
+        params:{
+          query:data.query,
+          pageSize: data.pageSize,
+          pageNumber: data.pageNumber,
+          sortBy: data.sortBy,
+          sortDirection: data.sortDirection,
+        }
+      });
   }
 
   get(id) {

@@ -1,5 +1,5 @@
 import { Component, OnInit, Output, EventEmitter, Input } from '@angular/core';
-import { UploadFileService } from 'src/app/services/upload-file.service';
+import { UploadFileService } from 'src/app/services/upload-file/upload-file.service';
 import { HttpEventType, HttpResponse, } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
@@ -47,7 +47,7 @@ export class UploadFileComponent implements OnInit {
         this.message = 'Could not upload the file!';
         this.currentFile = undefined;
       });
-    // emit output  
+    // emit output
     this.onFileSelected.emit(this.currentFile.name)
     this.selectedFiles = undefined;
   }

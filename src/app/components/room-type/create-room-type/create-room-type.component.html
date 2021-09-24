@@ -1,5 +1,10 @@
+
 <!-- Toast component -->
-<app-toast [class]="'bg-success'" [(status)]="toastStatus" [(message)]="toastMessage">
+<app-toast
+    [class]="'bg-success'"
+    [(status)]="toastStatus"
+    [(message)]="toastMessage"
+>
 </app-toast>
 <!-- Toast component -->
 <app-toast
@@ -48,12 +53,12 @@
 </nav>
 <div class="tab-content" id="nav-tabContent">
     <div
-        class="tab-pane fade show active pl-1"
+        class="tab-pane fade show active pl-1 w-100"
         id="nav-roomt-type"
         role="tabpanel"
         aria-labelledby="nav-home-tab"
     >
-        <form [formGroup]="form" class="mt-3">
+        <form [formGroup]="form" class="mt-3 custom-div tabloop">
             <div formGroupName="roomType">
                 <div class="form-row">
                     <div class="form-group col-md-6">
@@ -63,7 +68,9 @@
                             formControlName="name"
                             class="form-control"
                             [ngClass]="{
-                                'is-invalid': !name.valid && name.touched,
+                                'is-invalid':
+                                    (!name.valid && name.touched) ||
+                                    (name.invalid && isSubmitted),
                                 'is-valid': name.valid && name.touched
                             }"
                             id="name"
@@ -72,18 +79,18 @@
                         <!-- show validate error -->
                         <div
                             class="invalid-feedback"
-                            *ngIf="name.touched && name.invalid"
+                            *ngIf="name.touched && name.invalid||
+                            (name.invalid && isSubmitted)"
                         >
-                            <div *ngIf="name.errors.required">
-                                Facility name is required
-                            </div>
-                            <div *ngIf="name.errors.maxlength">
-                                Facility name should be maximum
-                                {{ name.errors.maxlength.requiredLength }}
-                                character
-                            </div>
+                            {{
+                                validationMessage.getErrorMessage(
+                                    "Name",
+                                    name.errors
+                                )
+                            }}
                         </div>
                     </div>
+
                     <div class="form-group col-md-6">
                         <label for="price">Price (per night)</label>
                         <input
@@ -91,21 +98,24 @@
                             formControlName="price"
                             class="form-control"
                             [ngClass]="{
-                                'is-invalid': !price.valid && price.touched,
+                                'is-invalid':
+                                    (!price.valid && price.touched) || (price.invalid && isSubmitted),
                                 'is-valid': price.valid && price.touched
                             }"
                             id="price"
                             placeholder="Price"
-
                         />
                         <!-- show validate error -->
                         <div
                             class="invalid-feedback"
-                            *ngIf="price.touched && price.invalid"
+                            *ngIf="price.touched && price.invalid || (price.invalid && isSubmitted)"
                         >
-                            <div *ngIf="name.errors.required">
-                                Price is required
-                            </div>
+                            {{
+                                validationMessage.getErrorMessage(
+                                    "Price",
+                                    price.errors
+                                )
+                            }}
                         </div>
                     </div>
                 </div>
@@ -117,7 +127,7 @@
                             formControlName="size"
                             class="form-control"
                             [ngClass]="{
-                                'is-invalid': !size.valid && size.touched,
+                                'is-invalid': !size.valid && size.touched || size.invalid && isSubmitted,
                                 'is-valid': size.valid && size.touched
                             }"
                             id="size"
@@ -125,10 +135,15 @@
                         />
                         <div
                             class="invalid-feedback"
-                            *ngIf="size.touched && size.invalid"
+                            *ngIf="size.touched && size.invalid || size.invalid && isSubmitted"
                         >
-                            <div *ngIf="name.errors.required">
-                                Size is required
+                            <div *ngIf="size.errors.required || size.invalid && isSubmitted">
+                                {{
+                                    validationMessage.getErrorMessage(
+                                        "Size",
+                                        size.errors
+                                    )
+                                }}
                             </div>
                         </div>
                     </div>
@@ -140,19 +155,26 @@
                             class="form-control"
                             [ngClass]="{
                                 'is-invalid':
-                                    !numberOfBeds.valid && numberOfBeds.touched,
-                                'is-valid': numberOfBeds.valid && numberOfBeds.touched
+                                    (!numberOfBeds.valid &&
+                                        numberOfBeds.touched) ||
+                                    (numberOfBeds.invalid && isSubmitted),
+                                'is-valid':
+                                    numberOfBeds.valid && numberOfBeds.touched
                             }"
                             id="numberOfBeds"
                             placeholder="Number of beds"
                         />
                         <div
                             class="invalid-feedback"
-                            *ngIf="numberOfBeds.touched && numberOfBeds.invalid"
+                            *ngIf="numberOfBeds.touched && numberOfBeds.invalid ||
+                            (numberOfBeds.invalid && isSubmitted)"
                         >
-                            <div *ngIf="numberOfBeds.errors.required">
-                                Number of beds is required
-                            </div>
+                            {{
+                                validationMessage.getErrorMessage(
+                                    "Number of Beds",
+                                    numberOfBeds.errors
+                                )
+                            }}
                         </div>
                     </div>
                 </div>
@@ -165,8 +187,9 @@
                             class="form-control"
                             [ngClass]="{
                                 'is-invalid':
-                                    !numberOfAdults.valid &&
-                                    numberOfAdults.touched,
+                                    (!numberOfAdults.valid &&
+                                        numberOfAdults.touched) ||
+                                    (numberOfAdults.invalid && isSubmitted),
                                 'is-valid':
                                     numberOfAdults.valid &&
                                     numberOfAdults.touched
@@ -177,12 +200,16 @@
                         <div
                             class="invalid-feedback"
                             *ngIf="
-                                numberOfAdults.touched && numberOfAdults.invalid
+                                numberOfAdults.touched && numberOfAdults.invalid||
+                                (numberOfAdults.invalid && isSubmitted)
                             "
                         >
-                            <div *ngIf="numberOfAdults.errors.required">
-                                Number of adults is required
-                            </div>
+                            {{
+                                validationMessage.getErrorMessage(
+                                    "Number of adults",
+                                    numberOfAdults.errors
+                                )
+                            }}
                         </div>
                     </div>
                     <div class="form-group col-md-6">
@@ -194,7 +221,8 @@
                             [ngClass]="{
                                 'is-invalid':
                                     !numberOfChilds.valid &&
-                                    numberOfChilds.touched,
+                                    numberOfChilds.touched ||
+                                    (numberOfChilds.invalid && isSubmitted),
                                 'is-valid':
                                     numberOfChilds.valid &&
                                     numberOfChilds.touched
@@ -205,12 +233,16 @@
                         <div
                             class="invalid-feedback"
                             *ngIf="
-                                numberOfChilds.touched && numberOfChilds.invalid
+                                numberOfChilds.touched && numberOfChilds.invalid||
+                                (numberOfChilds.invalid && isSubmitted)
                             "
                         >
-                            <div *ngIf="numberOfChilds.errors.required">
-                                Number of childs is required
-                            </div>
+                            {{
+                                validationMessage.getErrorMessage(
+                                    "Number of childs",
+                                    numberOfChilds.errors
+                                )
+                            }}
                         </div>
                     </div>
                 </div>
@@ -223,7 +255,8 @@
                             formControlName="description"
                             [ngClass]="{
                                 'is-invalid':
-                                    !description.valid && description.touched,
+                                    !description.valid && description.touched ||
+                                    (description.invalid && isSubmitted),
                                 'is-valid':
                                     description.valid && description.touched
                             }"
@@ -231,14 +264,16 @@
                         ></textarea>
                         <div
                             class="invalid-feedback"
-                            *ngIf="description.touched && description.invalid"
+                            *ngIf="description.touched && description.invalid ||
+                            (description.invalid && isSubmitted)"
                         >
                             <div *ngIf="description.errors.maxlength">
-                                Description should be maximum
                                 {{
-                                    description.errors.maxlength.requiredLength
+                                    validationMessage.getErrorMessage(
+                                        "Description",
+                                        description.errors
+                                    )
                                 }}
-                                character
                             </div>
                         </div>
                     </div>
@@ -249,8 +284,7 @@
                     <button
                         type="button"
                         class="btn btn-primary float-right"
-                        [disabled]="form.invalid"
-                        (click)="createRoomType()"
+                        (click)="createRoomType(); isSubmitted = true"
                     >
                         Create
                     </button>
@@ -266,12 +300,12 @@
         </form>
     </div>
     <div
-        class="tab-pane fade"
+        class="tab-pane fade w-100"
         id="nav-profile"
         role="tabpanel"
         aria-labelledby="nav-profile-tab"
     >
-        <div class="row mt-5 pl-5 scroll facilities">
+        <div class="row mt-5 pl-3 scroll custom-div">
             <div class="col-md-6 facility" *ngFor="let item of facilities">
                 <div class="row border-bottom">
                     <div class="col-md-2">
@@ -283,7 +317,6 @@
                                 item.icon ? item.icon : 'facilities.png'
                             }}"
                             alt=""
-                            class="w-100"
                         />
                     </div>
                     <div class="col-md-7 name">
@@ -292,11 +325,13 @@
                 </div>
             </div>
         </div>
-        <button
-            class="btn btn-primary float-right m-4"
-            (click)="createSelectedFacilities()"
-        >
-            Save
-        </button>
+        <div class="custom-div">
+            <button
+                class="btn btn-primary float-right"
+                (click)="createSelectedFacilities()"
+            >
+                Save
+            </button>
+        </div>
     </div>
 </div>

@@ -1,20 +1,18 @@
-import { HttpErrorResponse, HttpResponse } from "@angular/common/http";
-import { Component, Injector, OnInit } from "@angular/core";
+import { debounceTime } from 'rxjs/operators';
+import { HttpErrorResponse } from "@angular/common/http";
+import { Component,  OnInit } from "@angular/core";
 import {
-    AbstractControl,
     FormControl,
     FormGroup,
     Validators,
 } from "@angular/forms";
 import { Router } from "@angular/router";
-import { Observable } from "rxjs";
 import { PagingArgs } from "src/app/components/common/pagination/pagination.component";
 import { HttpStatusCode } from "src/app/utils/HttpStatusCode";
 import { Facility } from "src/app/models/Facility";
-import { ResponseModel } from "src/app/models/ResponseModel";
-import { FacilityService } from "src/app/services/facility.service";
-import { ValidationMessage } from "src/app/utils/ValidationMessage";
-import { FacilityValidators } from "./facility.validators";
+import { FacilityService } from "src/app/services/facility/facility.service";
+import { ValidationMessage } from "src/app/validators/ValidationMessage";
+import { CommomUtils } from 'src/app/utils/CommonUtils';
 declare var $: any;
 
 @Component({
@@ -30,14 +28,14 @@ export class FacilityListComponent implements OnInit {
     toastStatus: string;
     modalTitle: string;
     modalBody: string;
-    submit: string;
-    actionEvent: any;
-    deleteError = false;
+    submit: string; // action name in modal
+    deleteError = false; // flag delete error
     totalPages: number;
     totalElements: number;
     query: string;
     pageSize: number;
-    // default value
+    isFormChanged:false;
+    // default paging, search, sort
     pagingArgs: PagingArgs = {
         query: "",
         pageNumber: 1,
@@ -45,11 +43,6 @@ export class FacilityListComponent implements OnInit {
         sortBy:"id",
         sortDirection:"desc"
     };
-    // sort
-    sort = {
-        id: true, // true false -> descending, ascending
-        name:false,
-    }
 
     fileName: string;
     constructor(
@@ -60,9 +53,8 @@ export class FacilityListComponent implements OnInit {
 
     ngOnInit() {
         this.loadFacilitites(this.pagingArgs);
-        $(document).ready(function(){
-            $('[data-toggle="tooltip"]').tooltip()
-        })
+        CommomUtils.checkCloseModal();
+        CommomUtils.checkReloadPage();
     }
 
     form = new FormGroup({
@@ -109,7 +101,8 @@ export class FacilityListComponent implements OnInit {
     // load facilities and paging
     loadFacilitites(eventArgs?) {
         this.pagingArgs = eventArgs;
-        this.facilityService.getAll(eventArgs).subscribe(
+        this.facilityService.getAll(eventArgs)
+            .subscribe(
             (response) => {
                 if (response) {
                     this.facilities = response.content;
@@ -136,9 +129,6 @@ export class FacilityListComponent implements OnInit {
         }
         this.facilityService.update(this.facility.id, this.facility).subscribe(
             (response) => {
-                console.log(response);
-                // let index = this.facilities.findIndex(e => e.id == this.facility.id);
-                // this.facilities.splice(index, 1, this.facility)
                 this.loadFacilitites(this.pagingArgs);
                 this.editToastAfterActionSuccess(
                     "Success",
@@ -159,13 +149,6 @@ export class FacilityListComponent implements OnInit {
         this.fileName = undefined;
         this.facilityService.create(this.facility).subscribe(
             (response) => {
-                this.pagingArgs= {
-                    query: "",
-                    pageNumber: 1,
-                    pageSize: 5,
-                    sortBy:"id",
-                    sortDirection:"desc"
-                };
                 this.loadFacilitites(this.pagingArgs);
                 this.editToastAfterActionSuccess(
                     "Success",
@@ -191,6 +174,7 @@ export class FacilityListComponent implements OnInit {
         this.action = "Add";
         this.form.reset();
         this.focusFirstInput();
+        $("#is-submitted").val('0');
         $("input[type='file']").val("");
     }
 
@@ -202,6 +186,7 @@ export class FacilityListComponent implements OnInit {
                 $("#facilityModal").modal("show");
                 this.focusFirstInput();
                 this.action = "Edit";
+                $("#is-submitted").val('0');
                 this.form.reset();
                 this.form.get("facility").setValue({
                     id: facility.id,
@@ -222,13 +207,6 @@ export class FacilityListComponent implements OnInit {
     deleteFacility(facility) {
         this.facilityService.delete(facility.id).subscribe(
             (response) => {
-                this.pagingArgs= {
-                    query: "",
-                    pageNumber: 1,
-                    pageSize: 5,
-                    sortBy: "id",
-                    sortDirection:"desc"
-                };
                 this.loadFacilitites(this.pagingArgs); // load facilities
                 this.editToastAfterActionSuccess(
                     "Success",
@@ -268,6 +246,7 @@ export class FacilityListComponent implements OnInit {
 
     // edit toast after action success
     editToastAfterActionSuccess(status: string, message: string) {
+        $("#is-submitted").val('1');
         $("#facilityModal").modal("hide");
         $("#confirmModal").modal("hide");
         this.toastStatus = status;
@@ -319,5 +298,4 @@ export class FacilityListComponent implements OnInit {
         this.pagingArgs.sortBy = prop;
         this.loadFacilitites(this.pagingArgs)
     }
-
 }

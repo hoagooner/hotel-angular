@@ -5,4 +5,5 @@ export interface Price{
     price:number;
     modifiedDate: Date;
     roomType: RoomType;
+    deleteFlag:boolean;
 }

@@ -7,9 +7,13 @@ import {
     Validators,
 } from "@angular/forms";
 import { Router } from "@angular/router";
+import { max } from "rxjs/operators";
 import { Facility } from "src/app/models/Facility";
-import { FacilityService } from "src/app/services/facility.service";
-import { RoomTypeService } from "src/app/services/room-type.service";
+import { FacilityService } from "src/app/services/facility/facility.service";
+import { RoomTypeService } from "src/app/services/room-type/room-type.service";
+import { CommomUtils } from "src/app/utils/CommonUtils";
+import { CommonValidator } from "src/app/validators/CommonValidator";
+import { ValidationMessage } from "src/app/validators/ValidationMessage";
 import { environment } from "src/environments/environment";
 declare var $: any;
 
@@ -23,10 +27,12 @@ export class CreateRoomTypeComponent implements OnInit {
     toastStatus: string;
     facilities: Facility[];
     url: string;
+    isSubmitted: false;
 
     constructor(
         private roomTypeService: RoomTypeService,
         private facilityService: FacilityService,
+        public validationMessage: ValidationMessage,
         private fb: FormBuilder,
         private router: Router
     ) {}
@@ -34,9 +40,13 @@ export class CreateRoomTypeComponent implements OnInit {
     ngOnInit() {
         this.url = environment.SERVER_URL;
         this.loadFacilities();
+        CommomUtils.tabLoop();
+        CommomUtils.focusFirstInput();
+        CommomUtils.checkReloadPage();
+        this.isSubmitted= false;
     }
 
-    loadFacilities(){
+    loadFacilities() {
         this.facilityService.getList().subscribe(
             (response) => {
                 this.facilities = response;
@@ -50,19 +60,36 @@ export class CreateRoomTypeComponent implements OnInit {
                 Validators.required,
                 Validators.maxLength(50),
             ]),
-            price: new FormControl("", [Validators.required]),
-            size: new FormControl("", [Validators.required]),
-            numberOfAdults: new FormControl("", [Validators.required]),
-            numberOfChilds: new FormControl("", [Validators.required]),
-            numberOfBeds: new FormControl("", [Validators.required]),
-            description: new FormControl("", [
-                Validators.maxLength(255),
+            price: new FormControl("", [
+                Validators.required,
+                Validators.min(0),
+                Validators.max(1000000000),
             ]),
+            size: new FormControl("", [
+                Validators.required,
+                Validators.max(100),
+            ]),
+            numberOfAdults: new FormControl("", [
+                Validators.required,
+                Validators.max(20),
+                CommonValidator.shouldBePositiveInteger,
+            ]),
+            numberOfChilds: new FormControl("", [
+                Validators.required,
+                Validators.max(20),
+                CommonValidator.shouldBePositiveInteger,
+            ]),
+            numberOfBeds: new FormControl("", [
+                Validators.required,
+                Validators.max(20),
+                CommonValidator.shouldBePositiveInteger,
+            ]),
+            description: new FormControl("", [Validators.maxLength(255)]),
         }),
     });
 
     get roomType() {
-        return this.form.get("roomType").value;
+        return this.form.get("roomType");
     }
 
     get name() {
@@ -89,17 +116,20 @@ export class CreateRoomTypeComponent implements OnInit {
     }
 
     createRoomType() {
-        console.log(this.roomType);
-        this.roomType.prices = [
+        if(this.form.invalid){
+            CommomUtils.focusFirstInput();
+            return;
+        }
+        this.roomType.value.prices = [
             {
                 modifiedDate: new Date(),
-                price: this.roomType.price,
+                price: this.roomType.value.price,
             },
         ];
         // selected facility list
-        this.roomType.facilities = this.createSelectedFacilities();
+        this.roomType.value.facilities = this.createSelectedFacilities();
 
-        this.roomTypeService.create(this.roomType).subscribe(
+        this.roomTypeService.create(this.roomType.value).subscribe(
             (response) => {
                 console.log(response);
                 //redirect to room type list after add success
@@ -126,13 +156,15 @@ export class CreateRoomTypeComponent implements OnInit {
                 id: $(this).val(),
             });
         });
-        this.editToastAfterActionSuccess("Success","Facilities successfully updated")
+        this.editToastAfterActionSuccess(
+            "Success",
+            "Facilities successfully updated"
+        );
         return facilities;
-
     }
 
-     // edit toast after action success
-     editToastAfterActionSuccess(status: string, message: string) {
+    // edit toast after action success
+    editToastAfterActionSuccess(status: string, message: string) {
         $("#confirmModal").modal("hide");
         this.toastStatus = status;
         this.toastMessage = message;

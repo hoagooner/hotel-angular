@@ -9,14 +9,7 @@ export class FacilityService {
   constructor(private http: HttpClient) { }
 
   getAll(data?): Observable<any> {
-    // if (data) {
-    //   if (data.query) {
-    //     return this.http.get(`${environment.SERVER_URL}/api/facilities?query=${data.query}&pageSize=${data.pageSize}&pageNumber=${data.pageNumber}`)
-    //   } else {
-    //     return this.http.get(`${environment.SERVER_URL}/api/facilities?pageSize=${data.pageSize}&pageNumber=${data.pageNumber}&sort=${data.sort}`)
-    //   }
-    // }
-    // return this.http.get(`${environment.SERVER_URL}/api/facilities`);
+
     return this.http.get(`${environment.SERVER_URL}/api/facilities`,{
       params:{
         query:data.query,

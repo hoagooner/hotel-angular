@@ -2,15 +2,29 @@ select{
     width: 80px;
 }
 .showing p{
- margin-top: 0.2rem;
+    margin-top: 0.3rem;
 }
 
 .showing select{
-    margin-left: -1rem;
+    margin-left: -0.5rem;
 }
 
 .pagination p{
     color: gray;
+    font-size: 93%;
+}
+.size{
+    margin-left: 0.2rem;
+}
+.size p {
+    margin-top: 0.7rem;
+}
+
+.size select {
+    margin-left: 0.5rem;
+}
+.showing{
+    margin-top: 0.8rem;
 }
 
 /* .paging{

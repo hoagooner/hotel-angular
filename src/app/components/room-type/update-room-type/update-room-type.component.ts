@@ -10,8 +10,8 @@ import {
 import { ActivatedRoute, Router } from "@angular/router";
 import { Facility } from "src/app/models/Facility";
 import { RoomType } from "src/app/models/RoomType";
-import { FacilityService } from "src/app/services/facility.service";
-import { RoomTypeService } from "src/app/services/room-type.service";
+import { FacilityService } from "src/app/services/facility/facility.service";
+import { RoomTypeService } from "src/app/services/room-type/room-type.service";
 import { environment } from "src/environments/environment";
 declare var $: any;
 

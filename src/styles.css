@@ -9,7 +9,7 @@ body {
 
 @media only screen and (max-width: 1400px) {
     body {
-        font-size: 95%;
+        font-size: 90%;
     }
   }
 
@@ -17,6 +17,9 @@ app-sidebar{
     background: #7386D5;
 }
 
+i:hover{
+    cursor: pointer;
+}
 
 a,
 a:hover,
@@ -59,8 +62,8 @@ a:focus {
 }
 
 #sidebar {
-    min-width: 250px;
-    max-width: 250px;
+    min-width: 15rem;
+    max-width: 15rem;
     background: #7386D5;
     color: #fff;
     transition: all 0.3s;

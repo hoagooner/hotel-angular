@@ -13,12 +13,23 @@ export class ValidationMessage {
             case "phone":
                 message = `invalid format phone`;
                 break;
+            case "min":
+                message = `${propery} must be greater than ${validation.min.min}`;
+                break;
+            case "max":
+                console.log(validation);
+                message = `${propery} must be less than ${validation.max.max} `;
+                break;
             case "minlength":
                 message = `${propery} must be at least ${validation.minlength.requiredLength} characters`;
                 break;
             case "maxlength":
                 console.log(validation);
                 message = `${propery} must be less than ${validation.maxlength.requiredLength} characters`;
+                    break;
+            case "shouldBePositiveInteger":
+                console.log(validation);
+                message = `${propery} must be a positive integer number`;
                 break;
             case "shouldBeUnique":
                 message = `This ${propery} already exists`;
@@ -26,6 +37,9 @@ export class ValidationMessage {
             default:
                 message = "invalid input";
         }
-        return message.toLowerCase().charAt(0).toUpperCase()+message.slice(1).toLowerCase();
+        return (
+            message.toLowerCase().charAt(0).toUpperCase() +
+            message.slice(1).toLowerCase()
+        );
     }
 }

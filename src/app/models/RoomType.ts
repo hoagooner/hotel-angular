@@ -10,7 +10,9 @@ export class RoomType {
     numberOfAdults: number;
     numberOfChilds: number;
     numberOfBeds: number;
+    price:number;
     prices: Price[];
     rooms: Room[];
     facilities: Facility[];
+    deleteFlag:boolean;
 }
