@@ -1,13 +1,13 @@
-#addBtn{
+#addBtn {
     position: absolute;
     right: 15px;
 }
-.sort-div{
+.sort-div {
     right: 0;
     position: absolute;
 }
 
-#iconImg{
+#iconImg {
     max-width: 50px;
 }
 
@@ -15,17 +15,22 @@
     vertical-align: middle;
 }
 
-.tooltip{
-    text-align:left !important;
-  }
+.scroll {
+    max-height: 670px;
+    overflow: auto;
+    display: inline-block;
+}
 
+.tooltip {
+    text-align: left !important;
+}
 
-.table > tbody > tr{
+.table > tbody > tr {
     height: 60px;
     position: relative;
 }
 
-.table td{
+.table td {
     padding: 0 0.75rem;
     text-overflow: ellipsis;
     overflow: hidden;
@@ -34,14 +39,14 @@
 
 table {
     table-layout: fixed;
-  }
+}
 
-.modal img{
+.modal img {
     left: 0.3rem;
     bottom: 0;
     position: absolute;
 }
-:ng-deep .tooltip-inner {
+::ng-deep .tooltip-inner {
     max-width: 740px;
     text-align: left;
     border-radius: 10px;

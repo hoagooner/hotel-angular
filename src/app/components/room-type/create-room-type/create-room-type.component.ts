@@ -7,13 +7,15 @@ import {
     Validators,
 } from "@angular/forms";
 import { Router } from "@angular/router";
-import { max } from "rxjs/operators";
-import { Facility } from "src/app/models/Facility";
+import { fromEvent } from "rxjs";
+import { debounceTime, distinctUntilChanged, map, max } from "rxjs/operators";
+import { Facility } from "src/app/models/facility.model";
 import { FacilityService } from "src/app/services/facility/facility.service";
 import { RoomTypeService } from "src/app/services/room-type/room-type.service";
-import { CommomUtils } from "src/app/utils/CommonUtils";
-import { CommonValidator } from "src/app/validators/CommonValidator";
-import { ValidationMessage } from "src/app/validators/ValidationMessage";
+import { ToastService } from "src/app/services/toast/toast.service";
+import { AnimationUtils } from "src/app/utils/animation.utils";
+import { CommonValidator } from "src/app/validators/common.validator";
+import { ValidationMessage } from "src/app/validators/validation-message";
 import { environment } from "src/environments/environment";
 declare var $: any;
 
@@ -23,16 +25,21 @@ declare var $: any;
     styleUrls: ["./create-room-type.component.css"],
 })
 export class CreateRoomTypeComponent implements OnInit {
+
+    selectedFacilities = [];
     toastMessage: string;
     toastStatus: string;
     facilities: Facility[];
     url: string;
     isSubmitted: false;
+    selectedFiles: FileList;
+    currentFile: File;
 
     constructor(
         private roomTypeService: RoomTypeService,
         private facilityService: FacilityService,
         public validationMessage: ValidationMessage,
+        private toast: ToastService,
         private fb: FormBuilder,
         private router: Router
     ) {}
@@ -40,9 +47,10 @@ export class CreateRoomTypeComponent implements OnInit {
     ngOnInit() {
         this.url = environment.SERVER_URL;
         this.loadFacilities();
-        CommomUtils.tabLoop();
-        CommomUtils.focusFirstInput();
-        CommomUtils.checkReloadPage();
+        AnimationUtils.tabLoop();
+        AnimationUtils.focusFirstInput();
+        AnimationUtils.checkReloadPage();
+        this.checkNameExists();
         this.isSubmitted= false;
     }
 
@@ -67,16 +75,16 @@ export class CreateRoomTypeComponent implements OnInit {
             ]),
             size: new FormControl("", [
                 Validators.required,
-                Validators.max(100),
+                Validators.max(200),
             ]),
             numberOfAdults: new FormControl("", [
                 Validators.required,
-                Validators.max(20),
+                Validators.max(50),
                 CommonValidator.shouldBePositiveInteger,
             ]),
             numberOfChilds: new FormControl("", [
                 Validators.required,
-                Validators.max(20),
+                Validators.max(50),
                 CommonValidator.shouldBePositiveInteger,
             ]),
             numberOfBeds: new FormControl("", [
@@ -84,7 +92,7 @@ export class CreateRoomTypeComponent implements OnInit {
                 Validators.max(20),
                 CommonValidator.shouldBePositiveInteger,
             ]),
-            description: new FormControl("", [Validators.maxLength(255)]),
+            description: new FormControl("", [Validators.maxLength(1000)]),
         }),
     });
 
@@ -117,57 +125,75 @@ export class CreateRoomTypeComponent implements OnInit {
 
     createRoomType() {
         if(this.form.invalid){
-            CommomUtils.focusFirstInput();
+            AnimationUtils.focusFirstInput();
             return;
         }
-        this.roomType.value.prices = [
-            {
-                modifiedDate: new Date(),
-                price: this.roomType.value.price,
-            },
-        ];
+        // image
+        if( this.selectedFiles){
+            this.currentFile = this.selectedFiles.item(0);
+        }
         // selected facility list
-        this.roomType.value.facilities = this.createSelectedFacilities();
-
-        this.roomTypeService.create(this.roomType.value).subscribe(
+        this.roomType.value.facilities = this.selectedFacilities;
+        console.log(this.roomType.value);
+        this.roomTypeService.create(this.roomType.value, this.currentFile).subscribe(
             (response) => {
                 console.log(response);
                 //redirect to room type list after add success
-                this.redirectRoomTypeList("success");
+                this.toast.showSuccess("Room type created success !","");
+                this.redirectRoomTypeList()
             },
             (error) => console.log(error)
         );
     }
 
-    redirectRoomTypeList(status?) {
-        let queryParams;
-        if (status) {
-            queryParams = {
-                create: status,
-            };
-        }
-        this.router.navigate(["room-types"], { queryParams });
-    }
+    selectFile(event) {
+        this.selectedFiles = event.target.files;
+      }
 
     createSelectedFacilities() {
-        let facilities: any[] = [];
-        $(".facilities input:checked").each(function () {
+        let facilities = [];
+        $("input:checked").each(function () {
             facilities.push({
                 id: $(this).val(),
             });
         });
-        this.editToastAfterActionSuccess(
-            "Success",
-            "Facilities successfully updated"
-        );
-        return facilities;
+        this.selectedFacilities = facilities;
+        this.toast.showSuccess("Facilities successfully updated","");
     }
 
-    // edit toast after action success
-    editToastAfterActionSuccess(status: string, message: string) {
-        $("#confirmModal").modal("hide");
-        this.toastStatus = status;
-        this.toastMessage = message;
-        $(".toast").toast("show");
+    redirectRoomTypeList(){
+        this.router.navigate(["room-types"]);
     }
+
+     // check name exists in db
+     checkNameExists() {
+        fromEvent($("#name"), "keyup")
+            .pipe(
+                // get value
+                map((event: any) => {
+                    return event.target.value;
+                }),
+                debounceTime(1000),
+                distinctUntilChanged()
+            )
+            .subscribe(
+                (text: string) => {
+                    this.facilityService.findByName(text).subscribe(
+                        (response) => {
+                                this.form
+                                    .get("roomType.name")
+                                    .setErrors({ shouldBeUnique: true });
+                        },
+                        (error) => {
+                            console.log("error");
+                        }
+                    );
+                },
+                (err) => {
+                    console.log("error", err);
+                }
+            );
+    }
+
+
 }

@@ -4,20 +4,27 @@
 }
 
 .modal img{
+    width: 100%;
+    max-height: 13rem;
+}
 
+.scroll {
+    max-height: 670px;
+    overflow: auto;
+    display: inherit;
 }
 
 .img{
-    max-height: 10rem;
-    height: 10rem;
-    background-color: aquamarine;
+    max-height: 13rem;
+    height: 13rem;
+    width: 70%;
 }
 
 
 .room{
-    background-color: green;
     padding: 8px 15px;
     cursor: default !important;
     margin-right: 1rem;
     margin-top: 0.3rem;
+    width: 5.3rem;
 }

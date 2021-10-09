@@ -9,7 +9,7 @@ input[type="checkbox"] {
 }
 
 .custom-div{
-    width: 90%;
+    width: 85%;
     margin: 0 auto !important;
     margin-top: 2rem !important;
 }
@@ -20,18 +20,13 @@ input[type="checkbox"] {
 }
 
 .facility img{
-    max-height: 70px;
-}
-
-.facilities{
-    width: 80%;
-    margin: 0 auto;
+    max-height: 5rem;
 }
 
 .scroll {
     margin: 5px;
     padding: 5px;
-    height: 350px;
+    height: 365px;
     overflow: auto;
     text-align: justify;
   }

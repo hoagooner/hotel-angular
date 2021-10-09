@@ -1,6 +1,6 @@
-import { Facility } from "./Facility";
-import { Price } from "./Price";
-import { Room } from "./Room";
+import { Facility } from "./facility.model";
+import { Price } from "./price.model";
+import { Room } from "./room.model";
 
 export class RoomType {
     id: number;
@@ -15,4 +15,5 @@ export class RoomType {
     rooms: Room[];
     facilities: Facility[];
     deleteFlag:boolean;
+    image:string;
 }

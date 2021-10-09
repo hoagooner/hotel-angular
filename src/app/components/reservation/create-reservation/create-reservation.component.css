@@ -1,0 +1,26 @@
+.room {
+    margin: 0 0.5rem 0.5rem 0.5rem;
+    padding: 0.7rem 0rem;
+    width: 5.7rem;
+}
+
+.table > tbody > tr > td {
+    vertical-align: middle;
+}
+
+.symbol {
+    width: 6rem;
+    padding: 0.5rem;
+}
+
+.date .input-group-text {
+     width: 6.5rem;;
+}
+
+.filter .input-group-text {
+    width: 4.5rem;
+}
+.table th, .table td {
+    padding: 0.5rem;
+    vertical-align: middle !important;
+}

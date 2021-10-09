@@ -1,19 +1,14 @@
 import {
-    AfterViewInit,
     Component,
-    OnDestroy,
     OnInit,
-    ViewChild,
 } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
-import { DataTableDirective } from "angular-datatables";
-import { param } from "jquery";
-import { Subject } from "rxjs";
-import { RoomType } from "src/app/models/RoomType";
+import { RoomType } from "src/app/models/room-type.model";
 import { RoomTypeService } from "src/app/services/room-type/room-type.service";
-import { CalculateTableIndex } from "src/app/utils/CalculateTableIndex";
-import { CommomUtils } from "src/app/utils/CommonUtils";
+import { CalculateTableIndex } from "src/app/utils/calculate-table-index";
+import { AnimationUtils } from "src/app/utils/animation.utils";
 import { PagingArgs } from "../../common/pagination/pagination.component";
+import { ToastService } from "src/app/services/toast/toast.service";
 declare var $: any;
 
 @Component({
@@ -46,28 +41,15 @@ export class RoomTypeListComponent implements OnInit {
 
     constructor(
         private roomTypeService: RoomTypeService,
-        private activatedRoute: ActivatedRoute,
-        public calculateTableIndex: CalculateTableIndex
+        public calculateTableIndex: CalculateTableIndex,
+        private toast:ToastService,
+        private route : Router
     ) {}
 
     ngOnInit() {
         this.loadRoomTypes(this.pagingArgs)
-        CommomUtils.tabLoop()
-        CommomUtils.focusFirstInput()
-        this.activatedRoute.queryParams.subscribe((params) => {
-            console.log(params);
-            if (params.create == "success") {
-                this.editToastAfterActionSuccess(
-                    "Success",
-                    "Room type created successfully"
-                );
-            }else if(params.update == "success"){
-                this.editToastAfterActionSuccess(
-                    "Success",
-                    "Room type updated successfully"
-                );
-            }
-        });
+        AnimationUtils.tabLoop()
+        AnimationUtils.focusFirstInput()
     }
 
     loadRoomTypes(eventArgs?) {
@@ -92,16 +74,15 @@ export class RoomTypeListComponent implements OnInit {
     }
 
     clickView(id){
-         // check facility exists or not
+
          this.roomTypeService.get(id).subscribe(
             (response) => {
                 $("#detailModal").modal("show");
                 this.selectedRoomType = response;
             },
             (error) => {
-                $("#facilityModal").modal("hide");
+                this.editModalAfterDeleteError("view");
                 $("#confirmModal").modal("show");
-                this.editModalAfterDeleteError("update");
             }
         );
     }
@@ -109,12 +90,11 @@ export class RoomTypeListComponent implements OnInit {
      //sort facilities
      sortRoomTypes(prop){
         if(this.pagingArgs.sortBy == prop){
-            if(this.pagingArgs.sortDirection == "desc"){
-                this.pagingArgs.sortDirection = "asc"
-            }else{
-                this.pagingArgs.sortDirection = "desc"
-            }
+            this.pagingArgs.sortDirection == "desc"
+            ?  this.pagingArgs.sortDirection = "asc"
+            : this.pagingArgs.sortDirection = "desc"
         }
+
         this.pagingArgs.sortBy = prop;
         this.loadRoomTypes(this.pagingArgs)
     }
@@ -134,34 +114,14 @@ export class RoomTypeListComponent implements OnInit {
         this.roomTypeService.delete(roomType.id).subscribe(
             (response) => {
                 this.loadRoomTypes(this.pagingArgs); // load room types
-                this.editToastAfterActionSuccess(
-                    "Success",
-                    "Room type deleted successfylly !"
-                );
+                this.toast.showSuccess("Room type deleted successfylly !","")
+                $("#confirmModal").modal("hide");
             },
             (error) => {
+                console.log("show");
                 this.editModalAfterDeleteError("delete");
-                console.log(error);
             }
         );
-    }
-
-    // search facilities
-    onChangeSearch(query) {
-        console.log("event");
-        this.query = query;
-        // refer first page after search
-        this.pagingArgs.pageNumber = 1;
-        this.pagingArgs.query = this.query;
-        this.loadRoomTypes(this.pagingArgs);
-    }
-
-    // edit toast after action success
-    editToastAfterActionSuccess(status: string, message: string) {
-        $("#confirmModal").modal("hide");
-        this.toastStatus = status;
-        this.toastMessage = message;
-        $(".toast").toast("show");
     }
 
     //  edit modal after delete error
@@ -172,7 +132,29 @@ export class RoomTypeListComponent implements OnInit {
         this.modalBody = `Can't ${action} this item. It might have been deleted. Please refresh your page !`;
     }
 
+      // search facilities
+      onChangeSearch(query) {
+        console.log("event");
+        this.query = query;
+        // refer first page after search
+        this.pagingArgs.pageNumber = 1;
+        this.pagingArgs.query = this.query;
+        this.loadRoomTypes(this.pagingArgs);
+    }
 
+    clickEdit(id){
+        $(".modal").modal("hide")
+        this.roomTypeService.get(id).subscribe(
+            (response) => {
+                this.route.navigate(["room-types",id]);
+            },
+            (error) => {
+                this.editModalAfterDeleteError("edit");
+                $("#confirmModal").modal("show");
+            }
+        );
+
+    }
 
     //close confirm modal
     closeConfirmModal() {

@@ -1,5 +1,5 @@
 import { Component,EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { Facility } from 'src/app/models/Facility';
+import { Facility } from 'src/app/models/facility.model';
 
 @Component({
   selector: 'app-modal-confirm',
@@ -20,7 +20,6 @@ export class ModalConfirmComponent implements OnInit {
   }
 
   action(){
-    console.log(this.deletedItem);
     this.actionEvent.emit(this.deletedItem);
   }
 

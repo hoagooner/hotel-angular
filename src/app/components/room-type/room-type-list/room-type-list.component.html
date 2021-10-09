@@ -1,162 +1,288 @@
 <!-- Toast component -->
-<app-toast [class]="'bg-success'" [(status)]="toastStatus" [(message)]="toastMessage">
+<app-toast
+    [class]="'bg-success'"
+    [(status)]="toastStatus"
+    [(message)]="toastMessage"
+>
 </app-toast>
 <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a [routerLink]="['/']"><i class="fa fa-home"></i> Home</a></li>
-        <li class="breadcrumb-item active" aria-current="page"><a [routerLink]="['/room-types']">Room types</a></li>
+        <li class="breadcrumb-item">
+            <a [routerLink]="['/']"><i class="fa fa-home"></i> Home</a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">
+            <a [routerLink]="['/room-types']">Room types</a>
+        </li>
     </ol>
 </nav>
 <div class="tabloop">
-<div class="row mb-3">
-    <div class="col-md-6">
-        <div class="row">
-            <div class="col-md-8">
-              <div class="input-group" id="adv-search">
-                <input
-                  type="search"
-                  class="form-control"
-                  id="searchInp"
-                  placeholder="Enter facility name..."
-                  (keyup)="onChangeSearch($event.target.value)"
-                />
-              </div>
-            </div>
-          </div>
-    </div>
-    <div class="col-md-6">
-        <button class="btn btn-primary float-right" id="addBtn" [routerLink]="['/room-types/create']" >
-            <i class="fa fa-plus"></i> Add room type
-        </button>
-    </div>
-</div>
-<table class="table table-striped mt-3" id="roomTypeTable">
-    <thead>
-        <tr style="background-color: #7386D5;" class="text-light">
-            <th scope="col" style="width: 10%;">No.<i class="fa fa-sort float-right mt-1" (click)="sortRoomTypes('id')"></i></th>
-            <th scope="col" style="width: 15%;">Name<i class="fa fa-sort float-right mt-1" (click)="sortRoomTypes('name')"></i></th>
-            <th scope="col" style="width: 10%;">Size (<sup>2</sup>)<i class="fa fa-sort float-right mt-1" (click)="sortRoomTypes('size')"></i></th>
-            <th scope="col" style="width: 17%;">Number of adults<i class="fa fa-sort float-right mt-1" (click)="sortRoomTypes('numberOfAdults')"></i></th>
-            <th scope="col" style="width: 18%;">Number of childs<i class="fa fa-sort float-right mt-1" (click)="sortRoomTypes('numberOfChilds')"></i></th>
-            <th scope="col" style="width: 15%;">Price (VND)<i class="fa fa-sort float-right mt-1" (click)="sortRoomTypes('price')"></i></th>
-            <th scope="col" style="width: 15%;">Action</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr *ngFor="let roomType of roomTypes;index as i">
-            <td>
-                {{
-                    calculateTableIndex.calculateIndex(pagingArgs,totalPages,totalElements,i)
-                }}
-            </td>
-            <td>{{roomType.name}}</td>
-            <td class="text-right pr-3">{{roomType.size}}</td>
-            <td class="text-right pr-4">{{roomType.numberOfAdults}}</td>
-            <td class="text-right pr-4">{{roomType.numberOfChilds}}</td>
-            <td class="text-right pr-4">{{roomType.price}}</td>
-            <td>
-                <button class="btn btn-outline-info" (click)="clickView(roomType.id)">
-                    <i class="fa fa-eye"></i>
-                </button>&nbsp;
-                <button class="btn btn-outline-primary" [routerLink]="['/room-types',roomType.id]">
-                    <i class="fa fa-pencil"></i>
-                </button>&nbsp;
-                <button class="btn btn-outline-danger" data-toggle="modal" data-target="#confirmModal"
-                    (click)="clickDelete(roomType); row = $event">
-                    <i class="fa fa-trash"></i>
-                </button>
-            </td>
-        </tr>
-    </tbody>
-</table>
-
-<div class="modal fade " id="detailModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <div class="modal-body">
-          <div class="row">
-              <div class="col-md-5">
-                <div class="row img">
-                    img
-                </div>
-                <div class="row" *ngIf="selectedRoomType && selectedRoomType.facilities">
-                    <div class="col-md-6" *ngFor="let item of selectedRoomType.facilities">
-                        <img  src="http://localhost:8080/upload/{{ item.icon ? item.icon : 'facilities.png' }}" alt="" id="iconImg"/>
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="input-group" id="adv-search">
+                        <input
+                            type="search"
+                            class="form-control"
+                            id="searchInp"
+                            placeholder="Enter facility name..."
+                            (keyup)="onChangeSearch($event.target.value)"
+                        />
                     </div>
                 </div>
-              </div>
-              <div class="col-md-7">
-                  <div class="row">
-                <table class="table ">
-                      <tr>
-                        <td style="width: 30%;">Name</td>
-                        <td  style="width: 70%;">{{selectedRoomType.name}}</td>
-                      </tr>
-                      <tr>
-                        <td>Price (VNĐ)</td>
-                        <td>{{selectedRoomType.price}}</td>
-                      </tr>
-                      <tr>
-                        <td>Size (m<sup>2</sup>)</td>
-                        <td>{{selectedRoomType.size}}</td>
-                      </tr>
-                      <tr>
-                        <td>Number of adults</td>
-                        <td>{{selectedRoomType.numberOfAdults}}</td>
-                      </tr>
-                      <tr>
-                        <td>Number of childs</td>
-                        <td>{{selectedRoomType.numberOfChilds}}</td>
-                      </tr>
-                      <tr>
-                        <td>Number of beds</td>
-                        <td>{{selectedRoomType.numberOfBeds}}</td>
-                      </tr>
-                      <tr>
-                        <td style="width: 30%;">Rooms</td>
-                        <td style="width: 70%;">
-                            <button class="btn btn-success room">100</button>
-                            <button class="btn btn-success room">100</button>
-                            <button class="btn btn-success room">100</button>
-                            <button class="btn btn-success room">100</button>
-                            <button class="btn btn-success room">100</button>
-                            <button class="btn btn-success room">100</button>
-                            <button class="btn btn-success room">100</button>
-                            <button class="btn btn-success room">100</button>
-                            <button class="btn btn-success room">100</button>
-                            <button class="btn btn-success room">100</button>
-                        </td>
-                      </tr>
-                  </table>
-                </div>
-              </div>
-          </div>
+            </div>
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-primary">Edit</button>
+        <div class="col-md-6">
+            <button
+                class="btn btn-primary float-right"
+                id="addBtn"
+                [routerLink]="['/room-types/create']"
+            >
+                <i class="fa fa-plus"></i> Add room type
+            </button>
         </div>
-      </div>
     </div>
-  </div>
+    <div class="scroll">
+        <table class="table table-striped" id="roomTypeTable">
+            <thead>
+                <tr style="background-color: #344153" class="text-light">
+                    <th scope="col" style="width: 10%">
+                        No.<i
+                            class="fa fa-sort float-right mt-1"
+                            (click)="sortRoomTypes('id')"
+                        ></i>
+                    </th>
+                    <th scope="col" style="width: 15%">
+                        Name<i
+                            class="fa fa-sort float-right mt-1"
+                            (click)="sortRoomTypes('name')"
+                        ></i>
+                    </th>
+                    <th scope="col" style="width: 10%">
+                        Size (<sup>2</sup>)<i
+                            class="fa fa-sort float-right mt-1"
+                            (click)="sortRoomTypes('size')"
+                        ></i>
+                    </th>
+                    <th scope="col" style="width: 17%">
+                        Number of adults<i
+                            class="fa fa-sort float-right mt-1"
+                            (click)="sortRoomTypes('numberOfAdults')"
+                        ></i>
+                    </th>
+                    <th scope="col" style="width: 18%">
+                        Number of childs<i
+                            class="fa fa-sort float-right mt-1"
+                            (click)="sortRoomTypes('numberOfChilds')"
+                        ></i>
+                    </th>
+                    <th scope="col" style="width: 15%">
+                        Price (VND)<i
+                            class="fa fa-sort float-right mt-1"
+                            (click)="sortRoomTypes('price')"
+                        ></i>
+                    </th>
+                    <th scope="col" style="width: 15%">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let roomType of roomTypes; index as i">
+                    <td>
+                        {{
+                            calculateTableIndex.calculateIndex(
+                                pagingArgs,
+                                totalPages,
+                                totalElements,
+                                i
+                            )
+                        }}
+                    </td>
+                    <td>{{ roomType.name }}</td>
+                    <td class="text-right pr-3">{{ roomType.size }}</td>
+                    <td class="text-right pr-4">
+                        {{ roomType.numberOfAdults }}
+                    </td>
+                    <td class="text-right pr-4">
+                        {{ roomType.numberOfChilds }}
+                    </td>
+                    <td class="text-right pr-4">{{ roomType.price }}</td>
+                    <td>
+                        <button
+                            class="btn btn-outline-info"
+                            (click)="clickView(roomType.id)"
+                        >
+                            <i class="fa fa-eye"></i></button
+                        >&nbsp;
+                        <button
+                            class="btn btn-outline-primary"
+                            (click)="clickEdit(roomType.id)"
+                        >
+                            <i class="fa fa-pencil"></i></button
+                        >&nbsp;
+                        <button
+                            class="btn btn-outline-danger"
+                            data-toggle="modal"
+                            data-target="#confirmModal"
+                            (click)="clickDelete(roomType); row = $event"
+                        >
+                            <i class="fa fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div
+        class="modal fade"
+        id="detailModal"
+        tabindex="-1"
+        aria-labelledby="exampleModalLabel"
+        aria-hidden="true"
+    >
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content" *ngIf="selectedRoomType">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">
+                        {{ selectedRoomType.name }}
+                    </h5>
+                    <button
+                        type="button"
+                        class="close"
+                        data-dismiss="modal"
+                        aria-label="Close"
+                    >
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="row img m-2 pb-2 w-75 m-auto">
+                                <img
+                                    src="http://localhost:8080/upload/{{
+                                        selectedRoomType.image
+                                            ? selectedRoomType.image
+                                            : 'facilities.png'
+                                    }}"
+                                />
+                            </div>
+                            <div class="row pt-2 pr-2 border-top w-75 m-auto">
+                                <span
+                                    *ngFor="
+                                        let item of selectedRoomType.facilities
+                                    "
+                                    [ngbTooltip]="item.name"
+                                >
+                                    <img
+                                        style="width: 50px"
+                                        *ngIf="!item.deleteFlag"
+                                        src="http://localhost:8080/upload/{{
+                                            item.icon
+                                                ? item.icon
+                                                : 'facilities.png'
+                                        }}"
+                                    />
+                                </span>
+                            </div>
+                            <div class="row pt-2 border-top w-75 m-auto">
+                                <button class="btn btn-info room" *ngFor="let room of selectedRoomType.rooms">
+                                    {{room.roomNumber}}
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-5">
+                            <div class="row">
+                                <table class="table">
+                                    <tr>
+                                        <td>Name</td>
+                                        <td>{{ selectedRoomType.name }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Price (VNĐ)</td>
+                                        <td>
+                                            {{
+                                                selectedRoomType.price
+                                                    | number: "1.0"
+                                            }}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Size (m<sup>2</sup>)</td>
+                                        <td>{{ selectedRoomType.size }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Number of adults</td>
+                                        <td>
+                                            {{
+                                                selectedRoomType.numberOfAdults
+                                            }}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Number of childs</td>
+                                        <td>
+                                            {{
+                                                selectedRoomType.numberOfChilds
+                                            }}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Number of beds</td>
+                                        <td>
+                                            {{ selectedRoomType.numberOfBeds }}
+                                        </td>
+                                    </tr>
+                                    <tr></tr>
+                                </table>
+                            </div>
+                            <div class="row">
+                                Lorem ipsum dolor, sit amet consectetur
+                                adipisicing elit. Hic iste quam excepturi
+                                voluptatibus molestias temporibus sunt nisi odit
+                                fugit doloribus, quaerat delectus qui, est
+                                magnam veniam obcaecati quidem adipisci quod.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button
+                        type="button"
+                        class="btn btn-secondary"
+                        data-dismiss="modal"
+                    >
+                        Close
+                    </button>
+                    <button
+                        type="button"
+                        class="btn btn-primary"
+                        (click)="clickEdit(selectedRoomType.id)"
+                    >
+                        Edit
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-<app-pagination
-  *ngIf="totalPages > 0"
-  (action)="loadRoomTypes($event)"
-  [(totalPages)]="totalPages"
-  [(pagingArgs)]="pagingArgs"
-  [(totalElements)]="totalElements"
->
-</app-pagination>
+    <app-pagination
+        *ngIf="totalPages > 0"
+        (action)="loadRoomTypes($event)"
+        [(totalPages)]="totalPages"
+        [(pagingArgs)]="pagingArgs"
+        [(totalElements)]="totalElements"
+    >
+    </app-pagination>
 
-<!-- modal component -->
-<app-modal-confirm [(body)]="modalBody" [(submit)]="submit" [(title)]="modalTitle" [(deletedItem)]="selectedRoomType"
-    (actionEvent)="deleteError ? loadRoomTypes(): deleteRoomType($event)">
-</app-modal-confirm>
+    <!-- modal component -->
+    <app-modal-confirm
+        [(body)]="modalBody"
+        [(submit)]="submit"
+        [(title)]="modalTitle"
+        [(deletedItem)]="selectedRoomType"
+        (actionEvent)="
+            deleteError ? loadRoomTypes(pagingArgs) : deleteRoomType($event)
+        "
+    >
+    </app-modal-confirm>
 </div>

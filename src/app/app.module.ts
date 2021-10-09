@@ -22,11 +22,21 @@ import { RoomTypeService } from './services/room-type/room-type.service';
 import { DataTablesModule } from 'angular-datatables';
 import { CreateRoomTypeComponent } from './components/room-type/create-room-type/create-room-type.component';
 import { UpdateRoomTypeComponent } from './components/room-type/update-room-type/update-room-type.component';
-import { ValidationMessage } from './validators/ValidationMessage';
+import { ValidationMessage } from './validators/validation-message';
 import { NotFoundComponent } from './components/not-found/not-found.component';
 import { HomeComponent } from './components/home/home.component';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { CalculateTableIndex } from './utils/CalculateTableIndex';
+import { NgbAlertModule, NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { CalculateTableIndex } from './utils/calculate-table-index';
+import { ToastrModule } from 'ngx-toastr';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { AlertModule } from 'ngx-alerts';
+import { RoomService } from './services/room/room.service';
+import { CreateReservationComponent } from './components/reservation/create-reservation/create-reservation.component';
+import { ReservationListComponent } from './components/reservation/reservation-list/reservation-list.component';
+import { ToastService } from './services/toast/toast.service';
+import { ReservationService } from './services/reservation/reservation.service';
+import { DatePipe, TitleCasePipe } from '@angular/common';
+
 
 @NgModule({
   declarations: [
@@ -44,7 +54,9 @@ import { CalculateTableIndex } from './utils/CalculateTableIndex';
     CreateRoomTypeComponent,
     UpdateRoomTypeComponent,
     NotFoundComponent,
-    HomeComponent
+    HomeComponent,
+    CreateReservationComponent,
+    ReservationListComponent
   ],
   imports: [
     BrowserModule,
@@ -53,7 +65,9 @@ import { CalculateTableIndex } from './utils/CalculateTableIndex';
     FormsModule,
     HttpClientModule,
     DataTablesModule,
-    NgbModule
+    NgbModule,
+    BrowserAnimationsModule,
+    ToastrModule.forRoot(),
   ],
   providers: [
     FacilityService,
@@ -61,7 +75,11 @@ import { CalculateTableIndex } from './utils/CalculateTableIndex';
     FacilityValidators,
     RoomTypeService,
     ValidationMessage,
-    CalculateTableIndex
+    CalculateTableIndex,
+    ToastService,
+    RoomService,
+    ReservationService,
+    DatePipe
   ],
   bootstrap: [AppComponent]
 })

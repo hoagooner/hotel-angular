@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpRequest } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
@@ -22,12 +22,26 @@ export class RoomTypeService {
       });
   }
 
+  getList(): Observable<any> {
+    return this.http.get(`${environment.SERVER_URL}/api/room-types/list`)
+  }
+
   get(id) {
+
     return this.http.get(`${environment.SERVER_URL}/api/room-types/${id}`);
   }
 
-  create(data) {
-    return this.http.post(`${environment.SERVER_URL}/api/room-types`, data);
+  create(data,file?) {
+    const formData: FormData = new FormData();
+
+    var entityJsonStr = JSON.stringify(data);
+    formData.append("roomType", new Blob([entityJsonStr], {
+        type : "application/json"
+    }));
+    if(file){
+        formData.append('file',file);
+    }
+    return this.http.post(`${environment.SERVER_URL}/api/room-types`, formData);
   }
 
   update(id, data) {

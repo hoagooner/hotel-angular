@@ -4,6 +4,7 @@ import { AppComponent } from "./app.component";
 import { FacilityListComponent } from "./components/facility/facility.component";
 import { HomeComponent } from "./components/home/home.component";
 import { NotFoundComponent } from "./components/not-found/not-found.component";
+import { CreateReservationComponent } from "./components/reservation/create-reservation/create-reservation.component";
 import { CreateRoomTypeComponent } from "./components/room-type/create-room-type/create-room-type.component";
 import { RoomTypeListComponent } from "./components/room-type/room-type-list/room-type-list.component";
 import { UpdateRoomTypeComponent } from "./components/room-type/update-room-type/update-room-type.component";
@@ -16,6 +17,7 @@ const routes: Routes = [
     { path: "room-types", component: RoomTypeListComponent },
     { path: "room-types/create", component: CreateRoomTypeComponent },
     { path: "room-types/:id", component: UpdateRoomTypeComponent },
+    { path: 'booking', component: CreateReservationComponent },
     { path: '404', component: NotFoundComponent },
     { path: '**', redirectTo: '404' }
 ];

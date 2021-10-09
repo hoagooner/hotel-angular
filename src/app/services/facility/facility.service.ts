@@ -1,51 +1,56 @@
-import { environment } from 'src/environments/environment';
-import { Injectable, Injector } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { environment } from "src/environments/environment";
+import { Injectable, Injector } from "@angular/core";
+import { HttpClient } from "@angular/common/http";
+import { Observable } from "rxjs";
 
 @Injectable()
 export class FacilityService {
+    constructor(private http: HttpClient) {}
 
-  constructor(private http: HttpClient) { }
+    getAll(data?): Observable<any> {
+        return this.http.get(`${environment.SERVER_URL}/api/facilities`, {
+            params: {
+                query: data.query,
+                pageSize: data.pageSize,
+                pageNumber: data.pageNumber,
+                sortBy: data.sortBy,
+                sortDirection: data.sortDirection,
+            },
+        });
+    }
 
-  getAll(data?): Observable<any> {
+    getList(): Observable<any> {
+        return this.http.get(`${environment.SERVER_URL}/api/facilities/list`);
+    }
 
-    return this.http.get(`${environment.SERVER_URL}/api/facilities`,{
-      params:{
-        query:data.query,
-        pageSize: data.pageSize,
-        pageNumber: data.pageNumber,
-        sortBy: data.sortBy,
-        sortDirection: data.sortDirection,
-      }
-    });
-  }
+    get(id) {
+        return this.http.get(`${environment.SERVER_URL}/api/facilities/${id}`);
+    }
 
-  getList(): Observable<any>{
-      return this.http.get(`${environment.SERVER_URL}/api/facilities/list`);
-  }
+    create(data) {
+        return this.http.post(`${environment.SERVER_URL}/api/facilities`, data);
+    }
 
-  get(id) {
-    return this.http.get(`${environment.SERVER_URL}/api/facilities/${id}`);
-  }
+    update(id, data) {
+        return this.http.put(
+            `${environment.SERVER_URL}/api/facilities/${id}`,
+            data
+        );
+    }
 
-  create(data) {
-    return this.http.post(`${environment.SERVER_URL}/api/facilities`, data);
-  }
+    delete(id) {
+        return this.http.delete(
+            `${environment.SERVER_URL}/api/facilities/${id}`
+        );
+    }
 
-  update(id, data) {
-    return this.http.put(`${environment.SERVER_URL}/api/facilities/${id}`, data);
-  }
+    deleteAll() {
+        return this.http.delete(`${environment.SERVER_URL}/api/facilities`);
+    }
 
-  delete(id) {
-    return this.http.delete(`${environment.SERVER_URL}/api/facilities/${id}`);
-  }
-
-  deleteAll() {
-    return this.http.delete(`${environment.SERVER_URL}/api/facilities`);
-  }
-
-  findByName(name){
-    return this.http.get(`${environment.SERVER_URL}/api/facilities/search?name=${name}`);
-  }
+    findByName(name) {
+        return this.http.get(
+            `${environment.SERVER_URL}/api/facilities/search?name=${name}`
+        );
+    }
 }

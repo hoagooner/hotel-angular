@@ -8,10 +8,11 @@ import {
     Validators,
 } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { Facility } from "src/app/models/Facility";
-import { RoomType } from "src/app/models/RoomType";
+import { Facility } from "src/app/models/facility.model";
+import { RoomType } from "src/app/models/room-type.model";
 import { FacilityService } from "src/app/services/facility/facility.service";
 import { RoomTypeService } from "src/app/services/room-type/room-type.service";
+import { ToastService } from "src/app/services/toast/toast.service";
 import { environment } from "src/environments/environment";
 declare var $: any;
 
@@ -21,8 +22,7 @@ declare var $: any;
     styleUrls: ["./update-room-type.component.css"],
 })
 export class UpdateRoomTypeComponent implements OnInit {
-    toastMessage: string;
-    toastStatus: string;
+
     facilities: Facility[];
     facilitiesOfRoomType: any[];
     url: string;
@@ -31,6 +31,7 @@ export class UpdateRoomTypeComponent implements OnInit {
         private roomTypeService: RoomTypeService,
         private facilityService: FacilityService,
         private route: ActivatedRoute,
+        private toast:ToastService,
         private router: Router
     ) {}
 
@@ -38,16 +39,18 @@ export class UpdateRoomTypeComponent implements OnInit {
         this.url = environment.SERVER_URL;
         let id = this.route.snapshot.params["id"];
         this.roomTypeService.get(id).subscribe((response) => {
+            console.log(response);
             let roomType = response as RoomType;
             this.form.get("roomType").setValue({
                 id: roomType.id,
                 name: roomType.name,
-                price: roomType.prices[0].price,
+                price: roomType.price,
                 size: roomType.size,
                 numberOfAdults: roomType.numberOfAdults,
                 numberOfChilds: roomType.numberOfChilds,
                 numberOfBeds: roomType.numberOfBeds,
                 description: roomType.description,
+                image: roomType.image,
             });
             this.facilitiesOfRoomType = roomType.facilities;
             this.loadFacilities();
@@ -78,6 +81,7 @@ export class UpdateRoomTypeComponent implements OnInit {
             description: new FormControl("", [
                 Validators.maxLength(255),
             ]),
+            image: new FormControl(""),
         }),
     });
 
@@ -110,48 +114,38 @@ export class UpdateRoomTypeComponent implements OnInit {
 
     updateRoomType() {
         console.log(this.roomType);
-        this.roomType.prices = [
-            {
-                price: this.roomType.price,
-                modifiedDate: new Date(),
-            },
-        ];
         // selected facility list
-        this.roomType.facilities = this.createSelectedFacilities();
-
+        this.roomType.facilities = this.facilitiesOfRoomType;
+        console.log(this.facilitiesOfRoomType);
         this.roomTypeService.update(this.roomType.id,this.roomType).subscribe(
             (response) => {
                 console.log(response);
                 //redirect to room type list after add success
-                this.redirectRoomTypeList("success");
+                this.toast.showSuccess("Room type updated success !","");
+                this.redirectRoomTypeList()
             },
             (error) => console.log(error)
         );
     }
 
-    redirectRoomTypeList(status?) {
-        let queryParams;
-        if (status) {
-            queryParams = {
-                update: status,
-            };
-        }
-        this.router.navigate(["room-types"], { queryParams });
-    }
 
     createSelectedFacilities() {
         let facilities: any[] = [];
-        $(".facilities input:checked").each(function () {
+        $("input:checked").each(function () {
             facilities.push({
                 id: $(this).val(),
             });
         });
-        this.editToastAfterActionSuccess(
-            "Success",
-            "Facilities successfully updated"
-        );
+        console.log(facilities);
         return facilities;
     }
+
+    saveFacilities(){
+        this.facilitiesOfRoomType = this.createSelectedFacilities();
+        this.toast.showSuccess("Facilities updated success !","");
+    }
+
+
 
     checkFacility(item): boolean {
         return this.facilitiesOfRoomType.some((x) => {
@@ -159,11 +153,8 @@ export class UpdateRoomTypeComponent implements OnInit {
         });
     }
 
-    // edit toast after action success
-    editToastAfterActionSuccess(status: string, message: string) {
-        $("#confirmModal").modal("hide");
-        this.toastStatus = status;
-        this.toastMessage = message;
-        $(".toast").toast("show");
+    redirectRoomTypeList(){
+        this.router.navigate(["room-types"]);
     }
+
 }

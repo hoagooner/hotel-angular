@@ -1,0 +1,59 @@
+#addBtn {
+    position: absolute;
+    right: 15px;
+}
+.sort-div {
+    right: 0;
+    position: absolute;
+}
+
+#iconImg {
+    max-width: 50px;
+}
+
+.table > tbody > tr > td {
+    vertical-align: middle;
+}
+
+.scroll {
+    max-height: 670px;
+    overflow: auto;
+    display: inline-block;
+}
+
+.tooltip {
+    text-align: left !important;
+}
+
+.table > tbody > tr {
+    height: 60px;
+    position: relative;
+}
+
+.table td {
+    padding: 0 0.75rem;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+table {
+    table-layout: fixed;
+}
+
+.modal img {
+    left: 0.3rem;
+    bottom: 0;
+    position: absolute;
+}
+:ng-deep .tooltip-inner {
+    max-width: 740px;
+    text-align: left;
+    border-radius: 10px;
+    box-shadow: 0 0 3px #00000040;
+}
+
+.custom-valid {
+    background-image: none;
+}
+

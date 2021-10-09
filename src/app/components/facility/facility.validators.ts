@@ -4,7 +4,7 @@ import { Observable } from "rxjs";
 import { FacilityService } from "src/app/services/facility/facility.service";
 import { resolve } from "url";
 import { map } from "rxjs/operators";
-import { Facility } from "src/app/models/Facility";
+import { Facility } from "src/app/models/facility.model";
 
 @Injectable()
 export class FacilityValidators {

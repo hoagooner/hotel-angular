@@ -1,0 +1,404 @@
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+            <a [routerLink]="['/']"><i class="fa fa-home"></i> Home</a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">
+            <a [routerLink]="['/room-types']">Booking</a>
+        </li>
+    </ol>
+</nav>
+
+<div class="row">
+    <div class="col-md-3 tabloop">
+        <!-- Search -->
+        <form [formGroup]="searchForm" class="date">
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <div class="input-group-text px-3">Check in</div>
+                </div>
+                <input
+                    type="date"
+                    class="form-control"
+                    formControlName="checkin"
+                    [ngClass]="{ 'is-invalid': checkin.invalid }"
+                    id="checkin"
+                    (change)="changeCheckin($event)"
+                />
+                <!-- <div *ngIf="checkin.invalid" class="invalid-feedback text-right">
+                    {{validationMessage.getErrorMessage("",checkin.errors)}}
+                </div> -->
+            </div>
+            <div class="input-group mt-3">
+                <div class="input-group-prepend">
+                    <div class="input-group-text">Check out</div>
+                </div>
+                <input
+                    type="date"
+                    class="form-control"
+                    formControlName="checkout"
+                    [ngClass]="{ 'is-invalid': checkout.invalid }"
+                    id="checkout"
+                    (change)="changeCheckout($event)"
+                />
+                <!-- <div *ngIf="checkout.invalid" class="invalid-feedback text-right">
+                    {{validationMessage.getErrorMessage("",checkout.errors)}}
+                 </div> -->
+            </div>
+            <div class="input-group mt-3">
+                <button class="btn btn-primary w-100" (click)="getBookedRoom()">
+                    Search
+                </button>
+            </div>
+        </form>
+        <!-- Fillter -->
+        <span class="filter">
+            <div class="row">
+                <div class="input-group mt-3 col">
+                    <div class="input-group-prepend">
+                        <label class="input-group-text" for="inputGroupSelect01"
+                            >Size</label
+                        >
+                    </div>
+                    <select class="custom-select" id="inputGroupSelect01">
+                        <option selected>Choose...</option>
+                        <option value="1">One</option>
+                        <option value="2">Two</option>
+                        <option value="3">Three</option>
+                    </select>
+                </div>
+                <div class="input-group mt-3 col">
+                    <div class="input-group-prepend">
+                        <label class="input-group-text" for="inputGroupSelect01"
+                            >Beds</label
+                        >
+                    </div>
+                    <select class="custom-select" id="inputGroupSelect01">
+                        <option selected>Choose...</option>
+                        <option value="1">30&#13217; - 45</option>
+                        <option value="2">45 - 45</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row">
+                <div class="input-group mt-3 col">
+                    <div class="input-group-prepend">
+                        <label class="input-group-text" for="inputGroupSelect01"
+                            >Adults</label
+                        >
+                    </div>
+                    <select class="custom-select" id="inputGroupSelect01">
+                        <option selected>Choose...</option>
+                        <option value="1">One</option>
+                        <option value="2">Two</option>
+                        <option value="3">Three</option>
+                    </select>
+                </div>
+                <div class="input-group mt-3 col">
+                    <div class="input-group-prepend">
+                        <label class="input-group-text" for="inputGroupSelect01"
+                            >Childs</label
+                        >
+                    </div>
+                    <select class="custom-select" id="inputGroupSelect01">
+                        <option selected>Choose...</option>
+                        <option value="1">1 child</option>
+                        <option value="2">1-2 childs</option>
+                        <option value="3">2-3 childs</option>
+                        <option value="3">2-3 childs</option>
+                    </select>
+                </div>
+            </div>
+        </span>
+    </div>
+    <div class="col-md-8">
+        <button
+            class="btn room"
+            (click)="selectRoom(room)"
+            [disabled]="checkBookedRoom(room.id)"
+            [ngClass]="
+                checkBookedRoom(room.id)
+                    ? 'btn-danger'
+                    : checkRoomInSelectedRooms(room.id)
+                    ? 'btn-secondary'
+                    : 'btn-success'
+            "
+            *ngFor="let room of rooms"
+            id="{{ room.id }}"
+        >
+            {{ room.roomNumber }}
+        </button>
+    </div>
+    <div class="col-md-1">
+        <button class="btn btn-success symbol">Available</button><br />
+        <button class="btn btn-danger symbol mt-2" disabled>Booked</button
+        ><br />
+    </div>
+</div>
+<div class="row col-md-12 mt-3" *ngIf="bookingDetails.length > 0">
+    <table class="table">
+        <thead>
+            <tr>
+                <th style="width: 10%">No.</th>
+                <th style="width: 10%">Room</th>
+                <th style="width: 20%">Check in</th>
+                <th style="width: 20%">Check out</th>
+                <th style="width: 15%">Room type</th>
+                <th style="width: 15%">Price (VNĐ) (per night)</th>
+                <th style="width: 10%">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let bookingDetail of bookingDetails; index as i">
+                <th>{{ i + 1 }}</th>
+                <td class="text-right">{{ bookingDetail.room.roomNumber }}</td>
+                <td class="text-right">
+                    {{ bookingDetail.checkin | date: "short" }}
+                </td>
+                <td class="text-right">
+                    {{ bookingDetail.checkout | date: "short" }}
+                </td>
+                <td>{{ bookingDetail.room.roomType.name }}</td>
+                <td class="text-right">
+                    {{ bookingDetail.price }}
+                </td>
+                <td>
+                    <button
+                        class="btn btn-danger"
+                        (click)="selectRoom(bookingDetail.room)"
+                    >
+                        <i class="fa fa-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="text-right col-md-12">
+        <button
+            class="btn btn-primary"
+            (click)="booking()"
+            data-toggle="modal"
+            data-target="#bookingModal"
+        >
+            Book
+        </button>
+    </div>
+</div>
+<!-- Booking -->
+<div
+    class="modal fade"
+    id="bookingModal"
+    tabindex="-1"
+    aria-labelledby="exampleModalLabel"
+    aria-hidden="true"
+    *ngIf="bookingDetails.length > 0"
+>
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Booking</h5>
+                <button
+                    type="button"
+                    class="close"
+                    data-dismiss="modal"
+                    aria-label="Close"
+                >
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form [formGroup]="bookingForm">
+                <div class="modal-body">
+                    <div formArrayName="bookingDetails">
+                        <div
+                            class="row"
+                            *ngFor="
+                                let item of bookingDetailsInBooking.controls;
+                                let i = index
+                            "
+                        >
+                            <div class="col-md-5">
+                                <b>#{{ i + 1 }}</b>
+                                <table class="table">
+                                    <tr>
+                                        <th>Room number</th>
+                                        <td>
+                                            {{ item.value.room.roomNumber }}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>Price</th>
+                                        <td>
+                                            {{ item.value.room.roomType.price }}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>Check in</th>
+                                        <td>
+                                            {{
+                                                item.value.checkin
+                                                    | date: "short"
+                                            }}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>Check out</th>
+                                        <td>
+                                            {{
+                                                item.value.checkout
+                                                    | date: "short"
+                                            }}
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="col-md-7">
+                                <b>#Info</b>
+                                <table class="table" [formGroupName]="i">
+                                    <tr>
+                                        <th style="width: 30%">Full name</th>
+                                        <td>
+                                            {{
+                                                bookingDetailsInBooking
+                                                    .controls[i]["checkin"]
+                                            }}
+                                            <input
+                                                type="text"
+                                                class="form-control"
+                                                formControlName="fullName"
+                                                [ngClass]="{
+                                                    'is-invalid':
+                                                        nameOfBookingDetail(i)
+                                                            .touched &&
+                                                        nameOfBookingDetail(i)
+                                                            .invalid
+                                                }"
+                                            />
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>Phone</th>
+                                        <td>
+                                            <input
+                                                type="text"
+                                                class="form-control"
+                                                formControlName="phone"
+                                                [ngClass]="{
+                                                    'is-invalid':
+                                                        phoneOfBookingDetail(i)
+                                                            .touched &&
+                                                        phoneOfBookingDetail(i)
+                                                            .invalid
+                                                }"
+                                            />
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>Identity card</th>
+                                        <td>
+                                            <input
+                                                type="text"
+                                                class="form-control"
+                                                formControlName="identityCard"
+                                                [ngClass]="{
+                                                    'is-invalid':
+                                                        identityCardOfBookingDetail(
+                                                            i
+                                                        ).touched &&
+                                                        identityCardOfBookingDetail(
+                                                            i
+                                                        ).invalid
+                                                }"
+                                            />
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <b>#Booking info</b>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col">
+                            <input
+                                type="text"
+                                class="form-control"
+                                placeholder="Full name"
+                                formControlName="fullName"
+                                [ngClass]="{
+                                    'is-invalid':
+                                        bookingForm.get('fullName').touched &&
+                                        bookingForm.get('fullName').invalid
+                                }"
+                            />
+                        </div>
+                        <div class="col">
+                            <input
+                                type="text"
+                                class="form-control"
+                                placeholder="Phone"
+                                formControlName="phone"
+                            />
+                        </div>
+                        <div class="col">
+                            <input
+                                type="text"
+                                class="form-control"
+                                formControlName="identityCard"
+                                placeholder="Identity card"
+                            />
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-md-8"></div>
+                        <div class="col-md-4">
+                            <table class="table">
+                                <tr>
+                                    <th>Booking date</th>
+                                    <td> {{
+                                        bookingForm["controls"][
+                                            "bookingDate"
+                                        ].value | date :'short'
+                                    }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Total rooms</th>
+                                    <td>{{ bookingDetails.length }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Total price</th>
+                                    <td>
+                                        {{
+                                            bookingForm["controls"][
+                                                "totalPrice"
+                                            ].value
+                                        }}
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <div class="modal-footer">
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    data-dismiss="modal"
+                >
+                    Close
+                </button>
+                <button
+                    type="button"
+                    class="btn btn-primary"
+                    (click)="createBooking()"
+                >
+                    Save
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

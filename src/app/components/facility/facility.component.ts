@@ -1,19 +1,23 @@
-import { debounceTime } from 'rxjs/operators';
-import { HttpErrorResponse } from "@angular/common/http";
-import { Component,  OnInit } from "@angular/core";
 import {
-    FormControl,
-    FormGroup,
-    Validators,
-} from "@angular/forms";
-import { Router } from "@angular/router";
+    debounceTime,
+    map,
+    distinctUntilChanged,
+    filter,
+} from "rxjs/operators";
+import Swal from "sweetalert2";
+import { HttpErrorResponse } from "@angular/common/http";
+import { Component, OnInit } from "@angular/core";
+import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { PagingArgs } from "src/app/components/common/pagination/pagination.component";
-import { HttpStatusCode } from "src/app/utils/HttpStatusCode";
-import { Facility } from "src/app/models/Facility";
+import { HttpStatusCode } from "src/app/utils/http-status-code";
+import { Facility } from "src/app/models/facility.model";
 import { FacilityService } from "src/app/services/facility/facility.service";
-import { ValidationMessage } from "src/app/validators/ValidationMessage";
-import { CommomUtils } from 'src/app/utils/CommonUtils';
+import { ValidationMessage } from "src/app/validators/validation-message";
+import { AnimationUtils } from "src/app/utils/animation.utils";
 declare var $: any;
+import { ToastService } from "src/app/services/toast/toast.service";
+import { CalculateTableIndex } from "src/app/utils/calculate-table-index";
+import { fromEvent, Subject } from "rxjs";
 
 @Component({
     selector: "app-facility",
@@ -24,37 +28,42 @@ export class FacilityListComponent implements OnInit {
     facilities: Facility[];
     action: string;
     selectedFacility = new Facility();
-    toastMessage: string;
-    toastStatus: string;
+
     modalTitle: string;
     modalBody: string;
     submit: string; // action name in modal
     deleteError = false; // flag delete error
+
     totalPages: number;
     totalElements: number;
     query: string;
     pageSize: number;
-    isFormChanged:false;
+
+    oldName : string;
     // default paging, search, sort
     pagingArgs: PagingArgs = {
         query: "",
         pageNumber: 1,
         pageSize: 5,
-        sortBy:"id",
-        sortDirection:"desc"
+        sortBy: "id",
+        sortDirection: "desc",
     };
+    isSubmitted : boolean;
 
     fileName: string;
     constructor(
         private facilityService: FacilityService,
         public validationMessage: ValidationMessage,
-        private router: Router
+        public calculateTableIndex: CalculateTableIndex,
+        private toast: ToastService
     ) {}
 
     ngOnInit() {
         this.loadFacilitites(this.pagingArgs);
-        CommomUtils.checkCloseModal();
-        CommomUtils.checkReloadPage();
+        AnimationUtils.checkCloseModal();
+        AnimationUtils.checkReloadPage();
+        this.onChangeSearch();
+        this.checkNameExists();
     }
 
     form = new FormGroup({
@@ -63,11 +72,8 @@ export class FacilityListComponent implements OnInit {
             name: new FormControl(
                 "",
                 [Validators.required, Validators.maxLength(50)]
-                // FacilityValidators.shouldBeUnique(this.facilityService,this.id)
             ),
-            description: new FormControl("", [
-                Validators.maxLength(255),
-            ]),
+            description: new FormControl("", [Validators.maxLength(255)]),
             icon: new FormControl(""),
         }),
     });
@@ -80,8 +86,10 @@ export class FacilityListComponent implements OnInit {
     }
 
     get name() {
-        if (  this.form.get("facility.name").errors &&
-        this.form.get("facility.name").errors.maxlength ) {
+        if (
+            this.form.get("facility.name").errors &&
+            this.form.get("facility.name").errors.maxlength
+        ) {
             console.log(Object.keys(this.form.get("facility.name").errors));
         }
         return this.form.get("facility.name");
@@ -101,8 +109,7 @@ export class FacilityListComponent implements OnInit {
     // load facilities and paging
     loadFacilitites(eventArgs?) {
         this.pagingArgs = eventArgs;
-        this.facilityService.getAll(eventArgs)
-            .subscribe(
+        this.facilityService.getAll(eventArgs).subscribe(
             (response) => {
                 if (response) {
                     this.facilities = response.content;
@@ -119,7 +126,7 @@ export class FacilityListComponent implements OnInit {
             }
         );
         // close after refresh
-        this.closeConfirmModal();
+        AnimationUtils.closeModalAfterSubmit();
     }
 
     // update facility
@@ -130,10 +137,8 @@ export class FacilityListComponent implements OnInit {
         this.facilityService.update(this.facility.id, this.facility).subscribe(
             (response) => {
                 this.loadFacilitites(this.pagingArgs);
-                this.editToastAfterActionSuccess(
-                    "Success",
-                    "Facility updated successfully !"
-                );
+                this.toast.showSuccess("Facility updated successfully !", "");
+                AnimationUtils.closeModalAfterSubmit();
             },
             (error) => {
                 console.log(error);
@@ -143,6 +148,11 @@ export class FacilityListComponent implements OnInit {
 
     // create facility
     createFacility() {
+        this.isSubmitted = true;
+        if(this.form.invalid){
+            AnimationUtils.focusFirstInputModalWhenEror();
+            return;
+        }
         if (this.fileName) {
             this.facility.icon = this.fileName;
         }
@@ -150,10 +160,8 @@ export class FacilityListComponent implements OnInit {
         this.facilityService.create(this.facility).subscribe(
             (response) => {
                 this.loadFacilitites(this.pagingArgs);
-                this.editToastAfterActionSuccess(
-                    "Success",
-                    "Facility created successfully !"
-                );
+                this.toast.showSuccess("Facility created successfully !", "");
+                AnimationUtils.closeModalAfterSubmit();
             },
             (error) => console.log(error)
         );
@@ -171,22 +179,22 @@ export class FacilityListComponent implements OnInit {
 
     // action click add button
     clickAdd() {
-        this.action = "Add";
         this.form.reset();
-        this.focusFirstInput();
-        $("#is-submitted").val('0');
         $("input[type='file']").val("");
+        AnimationUtils.focusFirstInputOnShowModal()
+        $("#is-submitted").val("0");
     }
 
     // action click edit button
     clickEdit(facility: Facility) {
+        this.oldName = facility.name
         // check facility exists or not
         this.facilityService.get(facility.id).subscribe(
             (response) => {
+                $("input[type='file']").val("");
                 $("#facilityModal").modal("show");
                 this.focusFirstInput();
-                this.action = "Edit";
-                $("#is-submitted").val('0');
+                $("#is-submitted").val("0");
                 this.form.reset();
                 this.form.get("facility").setValue({
                     id: facility.id,
@@ -208,17 +216,20 @@ export class FacilityListComponent implements OnInit {
         this.facilityService.delete(facility.id).subscribe(
             (response) => {
                 this.loadFacilitites(this.pagingArgs); // load facilities
-                this.editToastAfterActionSuccess(
-                    "Success",
-                    "Facility deleted successfully !"
-                );
+                this.toast.showSuccess("Facility deleted successfully !", "");
+                AnimationUtils.closeModalAfterSubmit();
             },
             (error) => {
                 if (
                     (error as HttpErrorResponse).status ==
-                    HttpStatusCode.NotAcceptable
+                    HttpStatusCode.Conflict
                 ) {
-                    console.log("conflicted");
+                    $(".modal").modal("hide");
+                    Swal.fire(
+                        "Oops...",
+                        error.error.replace(/\[|\]/g, ""),
+                        "error"
+                    );
                 } else {
                     this.editModalAfterDeleteError("delete");
                 }
@@ -227,13 +238,24 @@ export class FacilityListComponent implements OnInit {
     }
 
     // search facilities
-    onChangeSearch(query) {
-        console.log("event");
-        this.query = query;
-        // refer first page after search
-        this.pagingArgs.pageNumber = 1;
-        this.pagingArgs.query = this.query;
-        this.loadFacilitites(this.pagingArgs);
+    onChangeSearch() {
+        fromEvent($("#searchInp"), "keyup")
+            .pipe(
+                map((event: any) => {
+                    return event.target.value;
+                }),
+                debounceTime(1000),
+                distinctUntilChanged()
+            )
+            .subscribe(
+                (text: string) => {
+                    this.pagingArgs.query =text;
+                    this.loadFacilitites(this.pagingArgs);
+                },
+                (err) => {
+                    console.log("error", err);
+                }
+            );
     }
 
     //  edit modal after delete error
@@ -242,16 +264,6 @@ export class FacilityListComponent implements OnInit {
         this.submit = "Refresh";
         this.modalTitle = "Oops!";
         this.modalBody = `Can't ${action} this item. It might have been deleted. Please refresh your page !`;
-    }
-
-    // edit toast after action success
-    editToastAfterActionSuccess(status: string, message: string) {
-        $("#is-submitted").val('1');
-        $("#facilityModal").modal("hide");
-        $("#confirmModal").modal("hide");
-        this.toastStatus = status;
-        this.toastMessage = message;
-        $(".toast").toast("show");
     }
 
     // focus fisrt input when open modal
@@ -267,35 +279,47 @@ export class FacilityListComponent implements OnInit {
     }
 
     // check name exists in db
-    checkNameExists($event) {
-
-        this.facilityService.findByName($event.target.value).subscribe(
-            (response) => {
-                if (
-                    this.form.get("facility.id").value !=
-                    (response as Facility).id
-                ) {
-                    this.form
-                        .get("facility.name")
-                        .setErrors({ shouldBeUnique: true });
+    checkNameExists() {
+        fromEvent($("#name"), "keyup")
+            .pipe(
+                // get value
+                map((event: any) => {
+                    return event.target.value;
+                }),
+                debounceTime(1000),
+                distinctUntilChanged()
+            )
+            .subscribe(
+                (text: string) => {
+                    this.facilityService.findByName(text).subscribe(
+                        (response) => {
+                            if ( this.oldName != this.name.value) {
+                                this.form
+                                    .get("facility.name")
+                                    .setErrors({ shouldBeUnique: true });
+                            }
+                        },
+                        (error) => {
+                            console.log("error");
+                        }
+                    );
+                },
+                (err) => {
+                    console.log("error", err);
                 }
-            },
-            (error) => {
-                console.log("error");
-            }
-        );
+            );
     }
 
     //sort facilities
-    sortFacilities(prop){
-        if(this.pagingArgs.sortBy == prop){
-            if(this.pagingArgs.sortDirection == "desc"){
-                this.pagingArgs.sortDirection = "asc"
-            }else{
-                this.pagingArgs.sortDirection = "desc"
+    sortFacilities(prop) {
+        if (this.pagingArgs.sortBy == prop) {
+            if (this.pagingArgs.sortDirection == "desc") {
+                this.pagingArgs.sortDirection = "asc";
+            } else {
+                this.pagingArgs.sortDirection = "desc";
             }
         }
         this.pagingArgs.sortBy = prop;
-        this.loadFacilitites(this.pagingArgs)
+        this.loadFacilitites(this.pagingArgs);
     }
 }

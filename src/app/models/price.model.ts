@@ -1,4 +1,4 @@
-import { RoomType } from "./RoomType";
+import { RoomType } from "./room-type.model";
 
 export interface Price{
     id:number;
